@@ -1,34 +1,33 @@
 <?php
-  if (isset($_POST['Submit'])) { // might be lowercase
-    console.log("yeet");
     require "./config.php";
     require "./common.php";
+?>
+<?php
+  if (isset($_POST['Submit'])) { // might be lowercase
+    if($_POST['password'] == $_POST['password1']) {
+      try {
+        $connection = new PDO($dsn, $username, $password, $options);
 
-    try {
-      $connection = new PDO($dsn, $username, $password, $options);
+        $register = array(
+          "username"      => $_POST['username'],
+          "password"      => $_POST['password'],
+          "fname"         => $_POST['fname'],
+          "lname"         => $_POST['lname'],
+        );
+        $registerData = implode("','", $register);
+        $sql = "CALL user_register('$registerData')";
 
-      $new_user = array(
-        "fname"     => $_POST['fname'],
-        "lname"     => $_POST['lname'],
-        "username"  => $_POST['username'],
-        "password"  => $_POST['password'],
-        "password1" => $_POST['password1'], // check ??
-      );
-
-      $sql = sprintf(                      // rewrite
-  "INSERT INTO %s (%s) values (%s)",
-  "users",
-  implode(", ", array_keys($new_user)),
-  ":" . implode(", :", array_keys($new_user))
-      );
-
-      $statement = $connection->prepare($sql);
-      $statement->execute($new_user);
-    } catch(PDOException $error) {
-      echo $sql . "<br>" . $error->getMessage();
+        $statement = $connection->prepare($sql);
+        $statement->execute($new_user);
+        header("Location:user-func.php");
+      } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+      }
+    } else {
+      echo "passwords do not match!";
     }
-    header("Location:user-func.php");
-}
+  }
+
 ?>
 
 

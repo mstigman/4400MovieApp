@@ -1,46 +1,66 @@
 
 <?php
-  if (isset($_POST['Submit'])) { // might be lowercase
     require "./config.php";
     require "./common.php";
-
-    try {
-      $connection = new PDO($dsn, $username, $password, $options);
-
-      $new_user = array(
-        "fname"         => $_POST['fname'],
-        "lname"         => $_POST['lname'],
-        "username"      => $_POST['username'],
-        "password"      => $_POST['password'],
-        "password1"     => $_POST['password1'],
-        "company"       => $_POST['company'],
-        "streetaddress" => $_POST['streetaddress'],
-        "city"          => $_POST['city'],
-        "zipcode"       => $_POST['zipcode'],
-        "state"         => $_POST['state'],
-      );
-
-      $sql = sprintf(                      // rewrite
-  "INSERT INTO %s (%s) values (%s)",
-  "users",
-  implode(", ", array_keys($new_user)),
-  ":" . implode(", :", array_keys($new_user))
-      );
-
-      $statement = $connection->prepare($sql);
-      $statement->execute($new_user);
-    } catch(PDOException $error) {
-      echo $sql . "<br>" . $error->getMessage();
-    }
-    header("Location:manager-func.php");
-  }
-
-  ?>
-
-
+?>
 
 <?php
-  // get companies here!!!!
+  if (isset($_POST['Submit'])) { // might be lowercase
+    if($_POST['password'] == $_POST['password1']) {
+      try {
+        $connection = new PDO($dsn, $username, $password, $options);
+
+        $register = array(
+          "username"      => $_POST['username'],
+          "password"      => $_POST['password'],
+          "fname"         => $_POST['fname'],
+          "lname"         => $_POST['lname'],
+          "company"       => $_POST['company'],
+          "streetaddress" => $_POST['streetaddress'],
+          "city"          => $_POST['city'],
+          "state"         => $_POST['state'],
+          "zipcode"       => $_POST['zipcode']
+        );
+        $registerData = implode("','", $register);
+        $sql = "CALL manager_only_register('$registerData')";
+
+        $statement = $connection->prepare($sql);
+        $statement->execute($new_user);
+
+        header("Location:manager-func.php");
+      } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+      }
+    } else {
+        echo "passwords do not match!";
+    }
+  }
+
+?>
+
+<?php
+
+/**
+  * Function to query information based on
+  * a parameter: in this case, location.
+  *
+  */
+
+  try {
+
+    $connection = new PDO($dsn, $username, $password, $options);
+
+    $sql = "SELECT *
+    FROM company";
+
+
+    $statement = $connection->prepare($sql);
+    $statement->execute();
+
+    $companies = $statement->fetchAll();
+  } catch(PDOException $error) {
+    echo $sql . "<br>" . $error->getMessage();
+  }
 ?>
 
 
@@ -60,8 +80,8 @@
 
   Company:
   <select name="company">
-    <?php foreach($companies as $companies): ?>
-        <option value="<?= $companies['id']; ?>"><?= $companies['name']; ?></option>
+    <?php foreach($companies as $company): ?>
+        <option value="<?= $company['comName']; ?>"><?= $company['comName']; ?></option>
     <?php endforeach; ?>
   </select>
   <br><br>

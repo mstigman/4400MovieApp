@@ -1,48 +1,78 @@
 <?php
-  if (isset($_POST['Submit'])) { // might be lowercase
     require "./config.php";
     require "./common.php";
+?>
 
-    try {
-      $connection = new PDO($dsn, $username, $password, $options);
+<?php
+  if (isset($_POST['Submit'])) { // might be lowercase
+    if($_POST['password'] == $_POST['password1'] && $_POST['card1'] != "") {
+      try {
+        $connection = new PDO($dsn, $username, $password, $options);
 
-      $new_user = array(
-        "fname"         => $_POST['fname'],
-        "lname"         => $_POST['lname'],
-        "username"      => $_POST['username'],
-        "password"      => $_POST['password'],
-        "password1"     => $_POST['password1'],
-        "company"       => $_POST['company'],
-        "streetaddress" => $_POST['streetaddress'],
-        "city"          => $_POST['city'],
-        "zipcode"       => $_POST['zipcode'],
-        "state"         => $_POST['state'],
-        "card1"         => $_POST['card1'],
-        "card2"         => $_POST['card2'],
-        "card3"         => $_POST['card3'],
-        "card4"         => $_POST['card4'],
-        "card5"         => $_POST['card5'],
-      );
+        $register = array(
+          "username"      => $_POST['username'],
+          "password"      => $_POST['password'],
+          "fname"         => $_POST['fname'],
+          "lname"         => $_POST['lname'],
+          "company"       => $_POST['company'],
+          "streetaddress" => $_POST['streetaddress'],
+          "city"          => $_POST['city'],
+          "state"         => $_POST['state'],
+          "zipcode"       => $_POST['zipcode']
+        );
+        $creditCards = array($_POST['card1'], $_POST['card2'], $_POST['card3'], $_POST['card4'], $_POST['card5']);
+        $registerData = implode("','", $register);
+        $sql = "CALL manager_customer_register('$registerData')";
 
-      $sql = sprintf(                      // rewrite
-      "INSERT INTO %s (%s) values (%s)",
-      "users",
-      implode(", ", array_keys($new_user)),
-      ":" . implode(", :", array_keys($new_user))
-      );
+        $statement = $connection->prepare($sql);
+        $statement->execute($new_user);
 
-      $statement = $connection->prepare($sql);
-      $statement->execute($new_user);
-    } catch(PDOException $error) {
-      echo $sql . "<br>" . $error->getMessage();
+        $name = $_POST['username'];
+        foreach ($creditCards as $creditCard) {
+          if ($creditCard != "") {
+            $sql = "CALL manager_customer_add_creditcard('$name', '$creditCard')";
+            $statement = $connection->prepare($sql);
+            $statement->execute($new_user);
+          }
+        }
+        header("Location:manager-customer-func.php");
+      } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+      }
+    } else {
+      if ($_POST['password'] != $_POST['password1']) {
+        echo "passwords do not match!";
+      } else {
+        echo "need a credit card!";
+      }
     }
-    header("Location:manager-customer-func.php");
   }
 
 ?>
 
 <?php
-  // get companies here!!!!
+
+/**
+  * Function to query information based on
+  * a parameter: in this case, location.
+  *
+  */
+
+  try {
+
+    $connection = new PDO($dsn, $username, $password, $options);
+
+    $sql = "SELECT *
+    FROM company";
+
+
+    $statement = $connection->prepare($sql);
+    $statement->execute();
+
+    $companies = $statement->fetchAll();
+  } catch(PDOException $error) {
+    echo $sql . "<br>" . $error->getMessage();
+  }
 ?>
 
 <!DOCTYPE html>
@@ -60,8 +90,8 @@
 
   Company:
   <select name="company">
-    <?php foreach($companies as $companies): ?>
-        <option value="<?= $companies['id']; ?>"><?= $companies['name']; ?></option>
+    <?php foreach($companies as $company): ?>
+        <option value="<?= $company['comName']; ?>"><?= $company['comName']; ?></option>
     <?php endforeach; ?>
   </select>
   <br><br>
