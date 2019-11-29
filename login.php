@@ -26,7 +26,9 @@
             $statement->execute();
             $userInfo = $statement->fetchAll();
 
-            $row = $result[0];
+            foreach ($userInfo as $user) {
+              echo $user['isCustomer'];
+            }
             $isCustomer = $row['isCustomer'];
             $isAdmin = $row['isAdmin'];
             $isManager = $row['isManager'];
@@ -83,8 +85,7 @@
                 $_SESSION['username'] = $_POST['username'];
                 header("Location:customer-func.php");
             }
-
-          } catch(PDOException $error) {
+            } catch(PDOException $error) {
             echo $sql . "<br>" . $error->getMessage();
           }
       }
