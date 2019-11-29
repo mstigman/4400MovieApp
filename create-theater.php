@@ -73,30 +73,49 @@ Capacity: <input type="text" name="capacity" maxlength="5" size="5"><br><br>
 </form>
 
 <!-- SQL QUERIES for company dropdown -->
-Company:
 <?php
-$sql = "select comName from team63.company;";
-$result = $mysqli->query($sql);
-echo "<select name='comName' form='theater_form'>";
-while ($row=$result->fetch_assoc()) {
-    echo "<option value='" . $row['comName'] . "'>" . $row['comName'] . "</option>";
-}
-echo "</select>";
+  try {
+    $connection = new PDO($dsn, $username, $password, $options);
+    $sql = "SELECT *
+    FROM company";
+    $statement = $connection->prepare($sql);
+    $statement->execute();
+    $companies = $statement->fetchAll();
+
+  } catch(PDOException $error) {
+    echo $sql . "<br>" . $error->getMessage();
+  }
 ?>
-<br><br>
+Company:
+<select name="comName">
+    <?php foreach($companies as $company): ?>
+        <option value="<?= $company['comName']; ?>"><?= $company['comName']; ?></option>
+    <?php endforeach; ?>
+  </select>
+  <br><br>
 
 <!-- SQL QUERIES for manager dropdown -->
 Manager:
-<?php 
-$sql = "select username from team63.manager where username not in (select manUsername in team63.theater);";
-$result = $mysqli->query($sql);
-echo "<select name='manUsername' form='theater_form'>";
-while ($row=$result->fetch_assoc()) {
-    echo "<option value='" . $row['username'] . "'>" . $row['username'] . "</option>";
-}
-echo "</select>";
+<?php
+  try {
+    $connection = new PDO($dsn, $username, $password, $options);
+    $sql = "SELECT username FROM manager 
+    WHERE username NOT IN (SELECT manUsername IN theater);";
+    $statement = $connection->prepare($sql);
+    $statement->execute();
+    $managers = $statement->fetchAll();
+
+  } catch(PDOException $error) {
+    echo $sql . "<br>" . $error->getMessage();
+  }
 ?>
-<br><br>
+Manager:
+<select name="manUsername">
+    <?php foreach($managers as $managers): ?>
+        <option value="<?= $managers['username']; ?>"><?= $company['username']; ?></option>
+    <?php endforeach; ?>
+  </select>
+  <br><br>
 
 <br>
 <button type="submit" form="theater_form" value="Submit" name="Submit">Submit</button>
