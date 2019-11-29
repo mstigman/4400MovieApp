@@ -19,7 +19,7 @@
 
         $statement = $connection->prepare($sql);
         $statement->execute();
-        header("Location:user-func.php");
+        header("Location:login.php");
       } catch(PDOException $error) {
         echo $sql . "<br>" . $error->getMessage();
       }

@@ -35,7 +35,7 @@
             $statement->execute($new_user);
           }
         }
-        header("Location:manager-customer-func.php");
+        header("Location:login.php");
       } catch(PDOException $error) {
         echo $sql . "<br>" . $error->getMessage();
       }

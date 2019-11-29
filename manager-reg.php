@@ -27,7 +27,7 @@
         $statement = $connection->prepare($sql);
         $statement->execute($new_user);
 
-        header("Location:manager-func.php");
+        header("Location:login.php");
       } catch(PDOException $error) {
         echo $sql . "<br>" . $error->getMessage();
       }
