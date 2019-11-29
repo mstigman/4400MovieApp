@@ -19,9 +19,9 @@
             $sql = "CALL user_login('$loginData')";
             $statement = $connection->prepare($sql);
             $statement->execute();
-            
+
             $userName = $_POST['username'];
-            $sql = "SELECT * FROM UserLogin where username = $userName";
+            $sql = "SELECT * FROM UserLogin where username = '$userName'";
             $statement = $connection->prepare($sql);
             $statement->execute();
             $userInfo = $statement->fetchAll();
@@ -30,7 +30,7 @@
             $isCustomer = $row['isCustomer'];
             $isAdmin = $row['isAdmin'];
             $isManager = $row['isManager'];
-            
+
             if ($isCustomer && $isAdmin) {
                 // Pass some variables to using SESSION for later use
                 session_start();
