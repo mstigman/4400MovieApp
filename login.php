@@ -36,7 +36,7 @@
             $isCustomer = $row['isCustomer'];
             $isAdmin = $row['isAdmin'];
             $isManager = $row['isManager'];
-            $GLOBALS['user'] = $_POST['username'];
+
             if ($isCustomer && $isAdmin) {
                 // Pass some variables to using SESSION for later use
                 session_start();

@@ -1,20 +1,26 @@
 <?php
-
-if (isset($_POST['submit'])) {
-  try {
     require "./config.php";
     require "./common.php";
+?>
+
+<?php
+$result = 0;
+if (isset($_POST['submit'])) {
+  try {
+    session_start();
 
     $connection = new PDO($dsn, $username, $password, $options);
+    $param = array(
+      "user"            => $_SESSION['username'],
+      "visit_date_lower" => $_POST['visit_date_lower'],
+      "visit_date_upper" => $_POST['visit_date_upper']
+    );
+    $args = implode("','", $param);
 
-    $sql = "SELECT *
-    FROM users
-    WHERE location = :location";
+    $sql = "CALL user_filter_visitHistory('$args')";
 
-    $location = $_POST['location'];
 
     $statement = $connection->prepare($sql);
-    $statement->bindParam(':location', $location, PDO::PARAM_STR);
     $statement->execute();
 
     $result = $statement->fetchAll();
@@ -23,6 +29,29 @@ if (isset($_POST['submit'])) {
   }
 }
 ?>
+<?php
+
+/**
+  * Function to query information based on
+  * a parameter: in this case, location.
+  *
+  */
+
+  try {
+
+    $connection = new PDO($dsn, $username, $password, $options);
+
+    $sql = "SELECT * FROM company";
+
+
+    $statement = $connection->prepare($sql);
+    $statement->execute();
+
+    $companies = $statement->fetchAll();
+  } catch(PDOException $error) {
+    echo $sql . "<br>" . $error->getMessage();
+  }
+?>
 
 <!DOCTYPE html>
 <html>
@@ -30,11 +59,11 @@ if (isset($_POST['submit'])) {
 
 <h1>Visit History</h1>
 
-<form id="filter_form">
-Company Name: <select name="company_name" form="filter_form">
-  <?php foreach($companies as $companies): ?>
-     <option value="<?= $companies['id']; ?>"><?= $companies['name']; ?></option>
-  <?php endforeach; ?>
+<form id="filter_form" method="post">
+Company Name: <select name="company" form="filter_form">
+    <?php foreach($companies as $company): ?>
+        <option value="<?= $company['comName']; ?>"><?= $company['comName']; ?></option>
+    <?php endforeach; ?>
 </select>
 <br><br>
 
@@ -55,14 +84,18 @@ Company Name: <select name="company_name" form="filter_form">
             <th>Visit Date</th>
         </tr>
      </thead>
-     <tbody>
-        <tr>
-            <td>Value </td>
-            <td>Value </td>
-            <td>Value </td>
-            <td>Value </td>
-         </tr>
-     </tbody>
+  <tbody>
+    <?php if ($result) { ?>
+    <?php foreach ($result as $row) { ?>
+      <tr>
+        <td><?php echo escape($row["thName"]); ?>
+        <td><?php echo escape($row["thStreet"]); ?></td>
+        <td><?php echo escape($row["comName"]); ?></td>
+        <td><?php echo escape($row["visitDate"]); ?></td>
+      </tr>
+    <?php } ?>
+  <?php } ?>
+  </tbody>
 </table>
 
 <hr>
