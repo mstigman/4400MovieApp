@@ -17,26 +17,20 @@
 
             $loginData = implode("','", $loginInfo);
             $sql = "CALL user_login('$loginData')";
-
             $statement = $connection->prepare($sql);
-
-            // Not sure what i should fill in here as the argument
             $statement->execute();
-
-            $sql = "SELECT * FROM team63.userLogin";
-
-
+            
+            $userName = $_POST['username'];
+            $sql = "SELECT * FROM UserLogin where username = $userName";
             $statement = $connection->prepare($sql);
-
-            // Not sure what i should fill in here as the argument
             $statement->execute();
-            $result = $statement->fetchAll();
+            $userInfo = $statement->fetchAll();
 
             $row = $result[0];
             $isCustomer = $row['isCustomer'];
             $isAdmin = $row['isAdmin'];
             $isManager = $row['isManager'];
-
+            
             if ($isCustomer && $isAdmin) {
                 // Pass some variables to using SESSION for later use
                 session_start();

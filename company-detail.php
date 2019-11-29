@@ -5,19 +5,34 @@ if (isset($_POST['submit'])) {
     require "./config.php";
     require "./common.php";
 
+    session_start();
+    $comName = $_SESSION['comName'];
+    // get employee details
     $connection = new PDO($dsn, $username, $password, $options);
-
-    $sql = "SELECT *
-    FROM users
-    WHERE location = :location";
-
-    $location = $_POST['location'];
-
+    $sql = "CALL admin_view_comDetail_emp($comName)";
     $statement = $connection->prepare($sql);
-    $statement->bindParam(':location', $location, PDO::PARAM_STR);
     $statement->execute();
+    $employeeDetail = $statement->fetchAll();
 
-    $result = $statement->fetchAll();
+    function array_zip($a1, $a2) {
+        for($i = 0; $i < min(length($a1), length($a2)); $i++) {
+          $out[$i] = $a1[$i] . $a2[$i];
+        }
+        return $out;
+    }
+    
+    if ($employeeDetail) {
+        $listEmployees = array_zip($employeeDetail['EmpFirstname'], $employeeDetail['EmpLastname']);
+        $employeeNames = implode(",", $listEmployees);
+    }
+
+    // get theater details
+    $connection = new PDO($dsn, $username, $password, $options);
+    $sql = "CALL admin_view_comDetail_th($comName)";
+    $statement = $connection->prepare($sql);
+    $statement->execute();
+    $theaterDetail = $statement->fetchAll();
+
   } catch(PDOException $error) {
     echo $sql . "<br>" . $error->getMessage();
   }
@@ -31,10 +46,15 @@ if (isset($_POST['submit'])) {
 <h1>Company Detail</h1>
 
 <h3>Name</h3>
---- query and output company name here ---
+<?php 
+    echo $comName;
+?>
 <h3>Employees</h3>
---- query and output list of managers of this company here ---
+<?php
+    echo $employeeNames;
+?>
 <br><br>
+
 <h3>Theaters</h3>
 <hr>
 <table style="width:40%">
@@ -48,20 +68,17 @@ if (isset($_POST['submit'])) {
   </tr>
 </thead>
 <tbody>
-  <tr>
-    <td>The Only Theater</td>
-    <td>Smith</td>
-    <td>50</td>
-    <td>pending</td>
-    <th>12 </th>
-  </tr>
-  <tr>
-    <td>Eve</td>
-    <td>Jackson</td>
-    <td>94</td>
-    <td>pending</td>
-    <th>12 </th>
-  </tr>
+    <?php if ($theaterDetail) { ?>
+        <?php foreach ($theaterDetail as $row) { ?>
+        <tr>
+            <td><?php echo escape($row["thName"]); ?>
+            <td><?php echo escape($row["thManagerUsername"]); ?></td>
+            <td><?php echo escape($row["thCity"]); ?></td>
+            <td><?php echo escape($row["thState"]); ?></td>
+            <td><?php echo escape($row["capacity"]); ?></td>
+        </tr>
+        <?php } ?>
+    <?php } ?>
 </tbody>
 </table>
 <hr>
