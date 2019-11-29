@@ -6,14 +6,13 @@
   if (isset($_POST['Submit'])) { // might be lowercase
       try {
         session_start();
-
         $connection = new PDO($dsn, $username, $password, $options);
         $movie = array(
-          "movName"      => $_POST['movName'],
-          "movReleaseDate"      => $_POST['movReleaseDate'],
-          "duration"         => $_POST['duration'],
-          "thName" => $_SESSION['thName'],
-          "comName" => $_SESSION['comName'],
+          "username"    => $_SESSION['username'],
+          "movName"      => $_POST['movie_name'],
+          "release_date"      => $_POST['release_date'],
+          "play_date"         => $_POST['play_date'],
+
         );
 
         $movieData = implode("','", $movie);
@@ -29,15 +28,25 @@
   }
 ?>
 
+<?php
+  $connection = new PDO($dsn, $username, $password, $options);
+  $sql = "SELECT movName FROM movie";
+  $statement = $connection->prepare($sql);
+  $statement->execute();
+
+  $movies = $statement->fetchAll();
+?>
+
+
 <!DOCTYPE html>
 <html>
 <body>
 
 <h1>Schedule Movie</h1>
 
-Name: <select name="movie_name" form="add_form">
+Name: <select type="submit" name="movie_name" form="add_form">
   <?php foreach($movies as $movies): ?>
-     <option value="<?= $movies['id']; ?>"><?= $movies['name']; ?></option>
+     <option value="<?= $movies['movName']; ?>"><?= $movies['movName']; ?></option>
   <?php endforeach; ?>
 </select>
 <br><br>
@@ -45,7 +54,7 @@ Name: <select name="movie_name" form="add_form">
 <form action="" method="post" id="add_form">
   Release Date: <input type="text" name="release_date" maxlength="11" size="11"><br><br>
   Play Date: <input type="text" name="play_date" maxlength="11" size="11"><br><br>
-  <button type="submit" form="movie_form" value="Submit" name="Submit">Create</button>
+  <button type="submit" value="Submit" name="Submit">Create</button>
 </form>
 <br>
 
