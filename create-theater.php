@@ -1,38 +1,8 @@
-
+  
 <?php
-  if (isset($_POST['Submit'])) { // might be lowercase
     require "./config.php";
     require "./common.php";
-
-    try {
-      $connection = new PDO($dsn, $username, $password, $options);
-
-      $new_user = array(
-        "theater_name"   => $_POST['theater_name'],
-        "streetaddress"  => $_POST['streetaddress'],
-        "city"  => $_POST['city'],
-        "zipcode"  => $_POST['zipcode'],
-        "state"  => $_POST['state'],
-        "capacity"  => $_POST['capacity'],
-        "company_name"  => $_POST['company_name'],
-        "manager_name"  => $_POST['manager_name'],
-      );
-
-      $sql = sprintf(                      // rewrite
-  "INSERT INTO %s (%s) values (%s)",
-  "users",
-  implode(", ", array_keys($new_user)),
-  ":" . implode(", :", array_keys($new_user))
-      );
-
-      $statement = $connection->prepare($sql);
-      $statement->execute($new_user);
-    } catch(PDOException $error) {
-      echo $sql . "<br>" . $error->getMessage();
-    }
-}
 ?>
-
 
 <!DOCTYPE html>
 <html>
@@ -41,12 +11,12 @@
 <h1>Create Theater</h1>
 
 <form action="" method="post" id="theater_form">
-  Name: <input type="text" name="theater_name"><br><br>
-  Street Address: <input type="text" name="streetaddress"><br><br>
-  City: <input type="text" name="city"><br><br>
-  Zipcode: <input type="text" name="zipcode" maxlength="5" size="5"><br><br>
+  Name: <input type="text" name="thName"><br><br>
+  Street Address: <input type="text" name="thStreet"><br><br>
+  City: <input type="text" name="thCity"><br><br>
+  Zipcode: <input type="text" name="thZipcode" maxlength="5" size="5"><br><br>
   State:
-  <select name="state">
+  <select name="thState">
     <option value="AL">Alabama (AL)</option>
     <option value="AK">Alaska (AK)</option>
     <option value="AZ">Arizona (AZ)</option>
@@ -101,24 +71,64 @@
 </select><br><br>
 Capacity: <input type="text" name="capacity" maxlength="5" size="5"><br><br>
 </form>
+
+<!-- SQL QUERIES for company dropdown -->
 Company:
-<select name="company_name" form="theater_form">
-    <?php foreach($companies as $companies): ?>
-        <option value="<?= $companies['id']; ?>"><?= $companies['name']; ?></option>
-    <?php endforeach; ?>
-  </select>
+<?php
+$sql = "select comName from team63.company;";
+$result = $mysqli->query($sql);
+echo "<select name='comName' form='theater_form'>";
+while ($row=$result->fetch_assoc()) {
+    echo "<option value='" . $row['comName'] . "'>" . $row['comName'] . "</option>";
+}
+echo "</select>";
+?>
 <br><br>
+
+<!-- SQL QUERIES for manager dropdown -->
 Manager:
-<select name="manager_name" form="theater_form">
-    <?php foreach($managers as $managers): ?>
-        <option value="<?= $managers['id']; ?>"><?= $managers['name']; ?></option>
-    <?php endforeach; ?>
-  </select>
+<?php 
+$sql = "select username from team63.manager where username not in (select manUsername in team63.theater);";
+$result = $mysqli->query($sql);
+echo "<select name='manUsername' form='theater_form'>";
+while ($row=$result->fetch_assoc()) {
+    echo "<option value='" . $row['username'] . "'>" . $row['username'] . "</option>";
+}
+echo "</select>";
+?>
 <br><br>
 
 <br>
 <button type="submit" form="theater_form" value="Submit" name="Submit">Submit</button>
 <button type="button" onclick="history.back();">Back</button>
+
+<?php
+  if (isset($_POST['Submit'])) { // might be lowercase
+        try {
+        $connection = new PDO($dsn, $username, $password, $options);
+        $theaterInfo = array(
+            "thName"  => $_POST['thName'],
+            "comName" => $_POST['comName'],
+            "capacity" => $_POST['capacity'],
+            "thStreet" => $_POST['thStreet'],
+            "thCity" => $_POST['thCity'],
+            "thState" => $_POST['thState'],
+            "thZipcode" => $_POST['thZipcode'],
+            "manUsername" => $_POST['manUsername'],
+        );
+        $registerData = implode("','", $theaterInfo);
+        $sql = "CALL admin_create_theater('$theaterInfo')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        
+        echo "<br>" . "The theater has been created."; 
+
+        } catch(PDOException $error) {
+            echo $sql . "<br>" . $error->getMessage();
+        }
+  }
+?>
+
 
 </body>
 </html>
