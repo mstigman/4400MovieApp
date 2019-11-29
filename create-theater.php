@@ -1,4 +1,4 @@
-  
+
 <?php
     require "./config.php";
     require "./common.php";
@@ -70,7 +70,6 @@
     <option value="WY">Wyoming (WY)</option>
 </select><br><br>
 Capacity: <input type="text" name="capacity" maxlength="5" size="5"><br><br>
-</form>
 
 <!-- SQL QUERIES for company dropdown -->
 <?php
@@ -87,20 +86,18 @@ Capacity: <input type="text" name="capacity" maxlength="5" size="5"><br><br>
   }
 ?>
 Company:
-<select name="comName">
+<select type="submit" name="comName">
     <?php foreach($companies as $company): ?>
         <option value="<?= $company['comName']; ?>"><?= $company['comName']; ?></option>
     <?php endforeach; ?>
   </select>
   <br><br>
-
 <!-- SQL QUERIES for manager dropdown -->
 Manager:
 <?php
   try {
-    $connection = new PDO($dsn, $username, $password, $options);
-    $sql = "SELECT username FROM manager 
-    WHERE username NOT IN (SELECT manUsername IN theater);";
+    $sql = "SELECT username FROM manager
+    WHERE username NOT IN (SELECT manUsername FROM theater)";
     $statement = $connection->prepare($sql);
     $statement->execute();
     $managers = $statement->fetchAll();
@@ -110,13 +107,13 @@ Manager:
   }
 ?>
 Manager:
-<select name="manUsername">
-    <?php foreach($managers as $managers): ?>
-        <option value="<?= $managers['username']; ?>"><?= $company['username']; ?></option>
+<select type="submit" name="manUsername">
+    <?php foreach($managers as $manager): ?>
+        <option value="<?= $manager['username']; ?>"><?= $manager['username']; ?></option>
     <?php endforeach; ?>
   </select>
   <br><br>
-
+</form>
 <br>
 <button type="submit" form="theater_form" value="Submit" name="Submit">Submit</button>
 <button type="button" onclick="history.back();">Back</button>
@@ -128,19 +125,19 @@ Manager:
         $theaterInfo = array(
             "thName"  => $_POST['thName'],
             "comName" => $_POST['comName'],
-            "capacity" => $_POST['capacity'],
             "thStreet" => $_POST['thStreet'],
             "thCity" => $_POST['thCity'],
             "thState" => $_POST['thState'],
             "thZipcode" => $_POST['thZipcode'],
+            "capacity" => $_POST['capacity'],
             "manUsername" => $_POST['manUsername'],
         );
         $registerData = implode("','", $theaterInfo);
-        $sql = "CALL admin_create_theater('$theaterInfo')";
+        $sql = "CALL admin_create_theater('$registerData')";
         $statement = $connection->prepare($sql);
         $statement->execute();
-        
-        echo "<br>" . "The theater has been created."; 
+
+        echo "<br>" . "The theater has been created.";
 
         } catch(PDOException $error) {
             echo $sql . "<br>" . $error->getMessage();
