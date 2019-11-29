@@ -6,12 +6,14 @@
 
       $connection = new PDO($dsn, $username, $password, $options);
 
+      session_start();
+      $user = $_SESSION['username'];
+      echo $user;
       $sql = "CALL customer_view_history('$user')";
 
 
       $statement = $connection->prepare($sql);
       $statement->execute();
-      echo $GLOBALS['user'];
       $sql = "Select * from CosViewHistory";
 
       $statement = $connection->prepare($sql);
