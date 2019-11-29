@@ -26,11 +26,11 @@
             $statement->execute();
             $userInfo = $statement->fetchAll();
 
-            $isCustomer = $userInfo['isCustomer'];
-            $isAdmin = $userInfo['isAdmin'];
-            $isManager = $userInfo['isManager'];
-            $GLOBALS['user'] = $_POST['username'];
-
+            $row = $result[0];
+            $isCustomer = $row['isCustomer'];
+            $isAdmin = $row['isAdmin'];
+            $isManager = $row['isManager'];
+            
             if ($isCustomer && $isAdmin) {
                 // Pass some variables to using SESSION for later use
                 session_start();
