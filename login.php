@@ -1,33 +1,59 @@
 
 <?php
-  if (isset($_POST['Submit'])) { // might be lowercase
-    console.log("yeet");
     require "./config.php";
     require "./common.php";
-
-    try {
-      $connection = new PDO($dsn, $username, $password, $options);
-
-      $new_user = array(
-        "username"  => $_POST['username'],
-        "password"  => $_POST['password'],
-      );
-
-      $sql = sprintf(                      // rewrite
-  "INSERT INTO %s (%s) values (%s)",
-  "users",
-  implode(", ", array_keys($new_user)),
-  ":" . implode(", :", array_keys($new_user))
-      );
-
-      $statement = $connection->prepare($sql);
-      $statement->execute($new_user);
-    } catch(PDOException $error) {
-      echo $sql . "<br>" . $error->getMessage();
-    }
-    header("Location:user-func.php");
-}
 ?>
+
+<!--LOGIC FOR LOGGING IN-->
+<?php
+    if (isset($_POST['submit'])) { // might be lowercase
+        if($_POST['password'] !="" && $_POST['username'] != "") {
+          try {
+            $connection = new PDO($dsn, $username, $password, $options);
+            $loginInfo = array(
+              "username"      => $_POST['username'],
+              "password"      => $_POST['password'],
+            );
+
+            $loginData = implode("','", $loginInfo);
+            $sql = "CALL user_login('$loginData')";
+
+            $statement = $connection->prepare($sql);
+
+            // Not sure what i should fill in here as the argument
+            $statement->execute($loginData); 
+            $result = $statement->fetchAll();
+
+            $isCustomer = $result->isCustomer;
+            $isCustomer = $result->isManager;
+            $isCustomer = $result->isAdmin;
+
+            if ($isCustomer && $isAdmin) {
+                header("Location:admin-customer-func.php");
+            } else if ($isCustomer && $isManager) {
+                header("Location:manager-customer-func.php");
+            } else if ($isAdmin) {
+                header("Location:admin-func.php");
+            } else if ($isManager) {
+                header("Location:manager-func.php");
+            } else {
+                header("Location:customer-func.php");
+            }
+
+           
+          } catch(PDOException $error) {
+            echo $sql . "<br>" . $error->getMessage();
+          }
+      }
+    }
+    
+?>
+
+</script>
+</body>
+
+
+
 
 <!DOCTYPE html>
 <html>
@@ -38,11 +64,12 @@
 <form action="" method="post" id="login_form">
   Username: <input type="text" name="username"><br><br>
   Password: <input type="text" name="password"><br><br>
+  <button type="submit" form="login_form" value="1" name="submit">Login</button>
 
 </form>
 <br>
-<button type="submit" form="login_form" value="Submit">Login</button>
 <button type="button" onclick="location.href = 'reg-nav.php';">Register</button>
+
 
 </body>
 </html>
