@@ -1,31 +1,28 @@
-
 <?php
-  if (isset($_POST['Submit'])) { // might be lowercase
     require "./config.php";
     require "./common.php";
+?>
+<?php
+  if (isset($_POST['Submit'])) { // might be lowercase
+      try {
+        $connection = new PDO($dsn, $username, $password, $options);
+        $movie = array(
+          "movName"      => $_POST['movName'],
+          "movReleaseDate"      => $_POST['movReleaseDate'],
+          "duration"         => $_POST['duration'],
+        );
 
-    try {
-      $connection = new PDO($dsn, $username, $password, $options);
+        $movieData = implode("','", $movie);
+        $sql = "CALL admin_create_mov('$movieData')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
 
-      $new_user = array(
-        "movie_name"   => $_POST['movie_name'],
-        "duration"  => $_POST['duration'],
-        "release_date"  => $_POST['release_date'],
-      );
+        echo "<br>" . "Movie successfully created.";
 
-      $sql = sprintf(                      // rewrite
-  "INSERT INTO %s (%s) values (%s)",
-  "users",
-  implode(", ", array_keys($new_user)),
-  ":" . implode(", :", array_keys($new_user))
-      );
-
-      $statement = $connection->prepare($sql);
-      $statement->execute($new_user);
-    } catch(PDOException $error) {
-      echo $sql . "<br>" . $error->getMessage();
-    }
-}
+      } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+      }
+  }
 ?>
 
 <!DOCTYPE html>
@@ -35,9 +32,9 @@
 <h1>Create Theater</h1>
 
 <form action="" method="post" id="movie_form">
-  Name: <input type="text" name="movie_name"><br><br>
+  Name: <input type="text" name="movName"><br><br>
   Duration: <input type="text" name="duration" maxlength="4" size="4"><br><br>
-  Release Date (YYYY/MM/DD): <input type="text" name="release_date" maxlength="10" size="11">
+  Release Date (YYYY/MM/DD): <input type="text" name="movReleaseDate" maxlength="10" size="11">
 </form>
 <br>
 
