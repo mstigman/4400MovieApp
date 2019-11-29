@@ -21,13 +21,22 @@
             $statement = $connection->prepare($sql);
 
             // Not sure what i should fill in here as the argument
-            $statement->execute($loginData); 
+            $statement->execute();
+
+            $sql = "SELECT * FROM team63.userLogin";
+
+
+            $statement = $connection->prepare($sql);
+
+            // Not sure what i should fill in here as the argument
+            $statement->execute();
             $result = $statement->fetchAll();
 
-            $isCustomer = $result->isCustomer;
-            $isCustomer = $result->isManager;
-            $isCustomer = $result->isAdmin;
-
+            $row = $result[0];
+            $isCustomer = $row['isCustomer'];
+            $isAdmin = $row['isAdmin'];
+            $isManager = $row['isManager'];
+            $GLOBALS['user'] = $_POST['username'];
             if ($isCustomer && $isAdmin) {
                 header("Location:admin-customer-func.php");
             } else if ($isCustomer && $isManager) {
@@ -40,13 +49,12 @@
                 header("Location:customer-func.php");
             }
 
-           
           } catch(PDOException $error) {
             echo $sql . "<br>" . $error->getMessage();
           }
       }
     }
-    
+
 ?>
 
 </script>

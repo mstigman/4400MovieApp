@@ -18,7 +18,7 @@
         $sql = "CALL user_register('$registerData')";
 
         $statement = $connection->prepare($sql);
-        $statement->execute($new_user);
+        $statement->execute();
         header("Location:user-func.php");
       } catch(PDOException $error) {
         echo $sql . "<br>" . $error->getMessage();

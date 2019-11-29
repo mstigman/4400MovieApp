@@ -1,27 +1,25 @@
 
 <?php
-  if (isset($_POST['submit'])) {
     try {
       require "./config.php";
       require "./common.php";
 
       $connection = new PDO($dsn, $username, $password, $options);
 
-      $sql = "SELECT *
-      FROM users
-      WHERE location = :location";
+      $sql = "CALL customer_view_history('$user')";
 
-      $location = $_POST['location'];
 
       $statement = $connection->prepare($sql);
-      $statement->bindParam(':location', $location, PDO::PARAM_STR);
       $statement->execute();
+      echo $GLOBALS['user'];
+      $sql = "Select * from CosViewHistory";
 
+      $statement = $connection->prepare($sql);
+      $statement->execute();
       $result = $statement->fetchAll();
     } catch(PDOException $error) {
       echo $sql . "<br>" . $error->getMessage();
     }
-  }
 ?>
 
 <!DOCTYPE html>
@@ -41,21 +39,19 @@
     <th>View Date </th>
   </tr>
 </thead>
-<tbody>
-  <tr>
-    <td>The Only Theater</td>
-    <td>Smith</td>
-    <td>50</td>
-    <td>pending</td>
-    <td>value here</td>
-  </tr>
-  <tr>
-    <td>Eve</td>
-    <td>Jackson</td>
-    <td>94</td>
-    <td>pending</td>
-    <td>value here</td>
-</tbody>
+  <tbody>
+    <?php if ($result) { ?>
+    <?php foreach ($result as $row) { ?>
+      <tr>
+        <td><?php echo escape($row["movName"]); ?>
+        <td><?php echo escape($row["thName"]); ?></td>
+        <td><?php echo escape($row["comName"]); ?></td>
+        <td><?php echo escape($row["creditCardNum"]); ?></td>
+        <td><?php echo escape($row["movPlayDate"]); ?></td>
+      </tr>
+    <?php } ?>
+  <?php } ?>
+  </tbody>
 </table>
 <hr>
 <br>
