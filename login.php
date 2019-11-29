@@ -29,14 +29,55 @@
             $isCustomer = $result->isAdmin;
 
             if ($isCustomer && $isAdmin) {
+                // Pass some variables to using SESSION for later use
+                session_start();
+                $_SESSION['username'] = $_POST['username'];
                 header("Location:admin-customer-func.php");
             } else if ($isCustomer && $isManager) {
+                // Get comName if manager
+                $userName = $_POST['username'];
+                $sql = "SELECT * FROM manager WHERE username = $userName";
+                $statement = $connection->prepare($sql);
+                $statement->execute();
+                $manager = $statement->fetchAll();
+                // Get the theater managed by the manager
+                $sql = "SELECT * FROM theater WHERE manUsername = $userName";
+                $statement = $connection->prepare($sql);
+                $statement->execute();
+                $theaterManaged = $statement->fetchAll();
+                // Pass some variables to using SESSION for later use
+                session_start();
+                $_SESSION['username'] = $_POST['username'];
+                $_SESSION['comName'] = $manager['comName'];
+                $_SESSION['thName'] = $theaterManaged['thName'];
+                // Go to next page
                 header("Location:manager-customer-func.php");
             } else if ($isAdmin) {
+                session_start();
+                $_SESSION['username'] = $_POST['username'];
                 header("Location:admin-func.php");
             } else if ($isManager) {
+                // Get comName if manager
+                $userName = $_POST['username'];
+                $sql = "SELECT * FROM manager WHERE username = $userName";
+                $statement = $connection->prepare($sql);
+                $statement->execute();
+                $manager = $statement->fetchAll();
+                // Get the theater managed by the manager
+                $sql = "SELECT * FROM theater WHERE manUsername = $userName";
+                $statement = $connection->prepare($sql);
+                $statement->execute();
+                $theaterManaged = $statement->fetchAll();
+                // Pass some variables to using SESSION for later use
+                session_start();
+                $_SESSION['username'] = $_POST['username'];
+                $_SESSION['comName'] = $manager['comName'];
+                $_SESSION['thName'] = $theaterManaged['thName'];
+                // Go to next page
                 header("Location:manager-func.php");
             } else {
+                session_start();
+                $_SESSION['username'] = $_POST['username'];
                 header("Location:customer-func.php");
             }
 

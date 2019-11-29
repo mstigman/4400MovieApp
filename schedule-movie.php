@@ -1,31 +1,32 @@
-
 <?php
-  if (isset($_POST['Submit'])) { // might be lowercase
     require "./config.php";
     require "./common.php";
+?>
+<?php
+  if (isset($_POST['Submit'])) { // might be lowercase
+      try {
+        session_start();
 
-    try {
-      $connection = new PDO($dsn, $username, $password, $options);
+        $connection = new PDO($dsn, $username, $password, $options);
+        $movie = array(
+          "movName"      => $_POST['movName'],
+          "movReleaseDate"      => $_POST['movReleaseDate'],
+          "duration"         => $_POST['duration'],
+          "thName" => $_SESSION['thName'],
+          "comName" => $_SESSION['comName'],
+        );
 
-      $new_user = array(
-        "movie_name"   => $_POST['movie_name'],
-        "release_date"  => $_POST['release_date'],
-        "play_date"  => $_POST['play_date'],
-      );
+        $movieData = implode("','", $movie);
+        $sql = "CALL manager_schedule_mov('$movieData')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
 
-      $sql = sprintf(                      // rewrite
-  "INSERT INTO %s (%s) values (%s)",
-  "users",
-  implode(", ", array_keys($new_user)),
-  ":" . implode(", :", array_keys($new_user))
-      );
+        echo "<br>" . "Movie successfully created.";
 
-      $statement = $connection->prepare($sql);
-      $statement->execute($new_user);
-    } catch(PDOException $error) {
-      echo $sql . "<br>" . $error->getMessage();
-    }
-}
+      } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+      }
+  }
 ?>
 
 <!DOCTYPE html>
