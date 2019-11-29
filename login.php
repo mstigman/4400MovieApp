@@ -7,7 +7,7 @@
 <!--LOGIC FOR LOGGING IN-->
 <?php
     if (isset($_POST['submit'])) { // might be lowercase
-        if($_POST['password'] !="" && $_POST['username'] != "") {
+        if($_POST['password'] != "" && $_POST['username'] != "") {
           try {
             $connection = new PDO($dsn, $username, $password, $options);
             $loginInfo = array(
@@ -21,32 +21,29 @@
             $statement->execute();
 
             $userName = $_POST['username'];
-            $sql = "SELECT * FROM UserLogin where username = '$userName'";
+            $sql = "SELECT * FROM UserLogin";// where username = '$userName'";
             $statement = $connection->prepare($sql);
             $statement->execute();
             $userInfo = $statement->fetchAll();
+            $userInfo = $userInfo[0];
+            $isCustomer = $userInfo['isCustomer'];
+            $isAdmin = $userInfo['isAdmin'];
+            $isManager = $userInfo['isManager'];
 
-            foreach ($userInfo as $user) {
-              echo $user['isCustomer'];
-            }
-            $isCustomer = $row['isCustomer'];
-            $isAdmin = $row['isAdmin'];
-            $isManager = $row['isManager'];
-
-            if ($isCustomer && $isAdmin) {
+            if ($isCustomer == 1 && $isAdmin == 1) {
                 // Pass some variables to using SESSION for later use
                 session_start();
                 $_SESSION['username'] = $_POST['username'];
                 header("Location:admin-customer-func.php");
-            } else if ($isCustomer && $isManager) {
+            } else if ($isCustomer == 1 && $isManager == 1) {
                 // Get comName if manager
                 $userName = $_POST['username'];
-                $sql = "SELECT * FROM manager WHERE username = $userName";
+                $sql = "SELECT * FROM manager WHERE username = '$userName'";
                 $statement = $connection->prepare($sql);
                 $statement->execute();
                 $manager = $statement->fetchAll();
                 // Get the theater managed by the manager
-                $sql = "SELECT * FROM theater WHERE manUsername = $userName";
+                $sql = "SELECT * FROM theater WHERE manUsername = '$userName'";
                 $statement = $connection->prepare($sql);
                 $statement->execute();
                 $theaterManaged = $statement->fetchAll();
@@ -57,19 +54,19 @@
                 $_SESSION['thName'] = $theaterManaged['thName'];
                 // Go to next page
                 header("Location:manager-customer-func.php");
-            } else if ($isAdmin) {
+            } else if ($isAdmin == 1) {
                 session_start();
                 $_SESSION['username'] = $_POST['username'];
                 header("Location:admin-func.php");
-            } else if ($isManager) {
+            } else if ($isManager == 1) {
                 // Get comName if manager
                 $userName = $_POST['username'];
-                $sql = "SELECT * FROM manager WHERE username = $userName";
+                $sql = "SELECT * FROM manager WHERE username = '$userName'";
                 $statement = $connection->prepare($sql);
                 $statement->execute();
                 $manager = $statement->fetchAll();
                 // Get the theater managed by the manager
-                $sql = "SELECT * FROM theater WHERE manUsername = $userName";
+                $sql = "SELECT * FROM theater WHERE manUsername = '$userName'";
                 $statement = $connection->prepare($sql);
                 $statement->execute();
                 $theaterManaged = $statement->fetchAll();
@@ -85,6 +82,7 @@
                 $_SESSION['username'] = $_POST['username'];
                 header("Location:customer-func.php");
             }
+
             } catch(PDOException $error) {
             echo $sql . "<br>" . $error->getMessage();
           }
