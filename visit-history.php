@@ -4,49 +4,65 @@
 ?>
 
 <?php
-$result = 0;
-if (isset($_POST['submit'])) {
-  try {
-    session_start();
+// Initial data for the table without filters   
+    $result = 0; 
+    try {
+        session_start();
 
-    $connection = new PDO($dsn, $username, $password, $options);
-    $param = array(
-      "user"            => $_SESSION['username'],
-      "visit_date_lower" => $_POST['visit_date_lower'],
-      "visit_date_upper" => $_POST['visit_date_upper']
-    );
-    $args = implode("','", $param);
+        $connection = new PDO($dsn, $username, $password, $options);
+        $username = $_SESSION['username'];
+        $sql = "SELECT thName, thStreet, thCity, thState, thZipcode, comName, visitDate
+        FROM uservisit NATURAL JOIN theater
+        WHERE (username = $username)";
 
-    $sql = "CALL user_filter_visitHistory('$args')";
-
-
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $result = $statement->fetchAll();
-  } catch(PDOException $error) {
-    echo $sql . "<br>" . $error->getMessage();
-  }
-}
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $result = $statement->fetchAll();
+    } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+    }
+    
 ?>
-<?php
 
+
+<?php
+    $result = 0;
+    if (isset($_POST['Submit'])) {
+        try {
+            session_start();
+
+            $connection = new PDO($dsn, $username, $password, $options);
+            $param = array(
+            "user"            => $_SESSION['username'],
+            "visit_date_lower" => $_POST['visit_date_lower'],
+            "visit_date_upper" => $_POST['visit_date_upper']
+            );
+            $args = implode("','", $param);
+
+            $sql = "CALL user_filter_visitHistory('$args')";
+
+
+            $statement = $connection->prepare($sql);
+            $statement->execute();
+
+            $result = $statement->fetchAll();
+        } catch(PDOException $error) {
+            echo $sql . "<br>" . $error->getMessage();
+        }
+    }
+?>
+
+<?php
 /**
   * Function to query information based on
-  * a parameter: in this case, location.
+  * a parameter: in this case, company.
   *
   */
-
   try {
-
     $connection = new PDO($dsn, $username, $password, $options);
-
     $sql = "SELECT * FROM company";
-
-
     $statement = $connection->prepare($sql);
     $statement->execute();
-
     $companies = $statement->fetchAll();
   } catch(PDOException $error) {
     echo $sql . "<br>" . $error->getMessage();
@@ -70,7 +86,7 @@ Company Name: <select name="company" form="filter_form">
 # Visit Date:  <input type="text" name="visit_date_lower" maxlength="11" size="11">&nbsp;
   -- <input type="text" name="visit_date_upper" maxlength="11" size="11">&nbsp;
 <br><br>
-<input type="submit" value="Filter" name="submit_filters" style="height:80px; width:80px">
+<input type="submit" value="Filter" name="Submit" style="height:80px; width:80px">
 </form>
 
 <hr>
@@ -89,7 +105,7 @@ Company Name: <select name="company" form="filter_form">
     <?php foreach ($result as $row) { ?>
       <tr>
         <td><?php echo escape($row["thName"]); ?>
-        <td><?php echo escape($row["thStreet"]); ?></td>
+        <td><?php echo $row["thStreet"], ', ', $row['thCity'], ', ', $row['thState'], ' ', $row['thZipcode']; ?></td>
         <td><?php echo escape($row["comName"]); ?></td>
         <td><?php echo escape($row["visitDate"]); ?></td>
       </tr>
