@@ -1,19 +1,36 @@
-<?php //read and result
-if (isset($_POST['submit'])) {
-  try {
+<?php
     require "./config.php";
     require "./common.php";
+?>
 
+<?php //read and result
+$result = 0;
+if (isset($_POST['Filter'])) {
+  try {
     $connection = new PDO($dsn, $username, $password, $options);
+    session_start();
+    $param = array(
+      "username"   => $_SESSION['username'],
+      "movName"   => $_POST['movie_name'],
+      "minMovDur"   => $_POST['duration_lower'],
+      "maxMovDur"   => $_POST['duration_upper'],
+      "minMoveRel"   => $_POST['release_lower'],
+      "maxMovRel"   => $_POST['release_upper'],
+      "minMovePlay"   => $_POST['play_lower'],
+      "maxMovePlay"   => $_POST['play_upper'],
+      "notPlayed"   => $_POST['not_played_movie'],
+    );
 
-    $sql = "SELECT *
-    FROM users
-    WHERE location = :location";
+    $args = implode("','", $param);
+    $sql = "CALL manager_filter_th('$args')";
 
-    $location = $_POST['location'];
+    echo $sql;
+    $statement = $connection->prepare($sql);
+    $statement->execute();
+
+    $sql = "SELECT * FROM ManFilterTh";
 
     $statement = $connection->prepare($sql);
-    $statement->bindParam(':location', $location, PDO::PARAM_STR);
     $statement->execute();
 
     $result = $statement->fetchAll();
@@ -22,38 +39,6 @@ if (isset($_POST['submit'])) {
   }
 }
 ?>
-<?php //insert and update
-if (isset($_POST['submit'])) {
-  require "./config.php";
-  require "./common.php";
-
-  try {
-    $connection = new PDO($dsn, $username, $password, $options);
-
-    $new_user = array(
-      "firstname" => $_POST['firstname'],
-      "lastname"  => $_POST['lastname'],
-      "email"     => $_POST['email'],
-      "age"       => $_POST['age'],
-      "location"  => $_POST['location']
-    );
-
-    $sql = sprintf(
-"INSERT INTO %s (%s) values (%s)",
-"users",
-implode(", ", array_keys($new_user)),
-":" . implode(", :", array_keys($new_user))
-    );
-
-    $statement = $connection->prepare($sql);
-    $statement->execute($new_user);
-  } catch(PDOException $error) {
-    echo $sql . "<br>" . $error->getMessage();
-  }
-
-}
-?>
-
 
 <!DOCTYPE html>
 <html>
@@ -61,22 +46,23 @@ implode(", ", array_keys($new_user)),
 
 <h1>Theater Overview</h1>
 
-<form action="" method="" id="filter_form">
+<form action="" method="post" id="filter_form">
    Movie Name <input type="text" name="movie_name">
 <br><br>
   # Movie Duration:  <input type="text" name="duration_lower" maxlength="4" size="4">&nbsp;
   -- <input type="text" name="duration_upper" maxlength="4" size="4">&nbsp;
 <br><br>
-  # Movie Release Date:  <input type="text" name="release_lower" maxlength="11" size="11">&nbsp;
-  -- <input type="text" name="release_upper" maxlength="11" size="11">&nbsp;
+  # Movie Release Date:  <input type="date" name="release_lower">&nbsp;
+  -- <input type="date" name="release_upper">&nbsp;
 <br><br>
-  # Movie Play Date:  <input type="text" name="play_lower" maxlength="11" size="11">&nbsp;
-  -- <input type="text" name="play_upper" maxlength="11" size="11">&nbsp;
+  # Movie Play Date:  <input type="date" name="play_lower">&nbsp;
+  -- <input type="date" name="play_upper">&nbsp;
 <br><br>
-<input type="radio" name="not_played_movie" value="male"> Only Include Not Played Movie
+<input name="not_played_movie" type="hidden" value=0>
+<input type="checkbox" name="not_played_movie" value=1> Only Include Not Played Movie
 <br><br>
 
-<input type="submit" value="Filter" name="submit_filters" style="height:80px; width:80px">
+<input type="submit" value="Filter" name="Filter" style="height:80px; width:80px">
 </form>
 <br>
 <hr>
@@ -90,17 +76,16 @@ implode(", ", array_keys($new_user)),
   </tr>
 </thead>
 <tbody>
-  <tr>
-    <td>The Only Theater</td>
-    <td>Smith</td>
-    <td>50</td>
-    <td>pending</td>
-  </tr>
-  <tr>
-    <td>Eve</td>
-    <td>Jackson</td>
-    <td>94</td>
-    <td>pending</td>
+        <?php if ($result) {?>
+        <?php foreach ($result as $row) { ?>
+          <tr>
+            <td><?php echo escape($row["username"]); ?></td>
+            <td><?php echo escape($row["creditCardCount"]); ?></td>
+            <td><?php echo escape($row["userType"]); ?></td>
+            <td><?php echo escape($row["status"]); ?></td>
+          </tr>
+        <?php } ?>
+      <?php } ?>
 </tbody>
 </table>
 <hr>

@@ -1,4 +1,7 @@
-<?php
+<?
+$comName = 0;
+$employeeNames = 0;
+$theaterDetail = 0;
 
 if (isset($_POST['submit'])) {
   try {
@@ -9,7 +12,7 @@ if (isset($_POST['submit'])) {
     $comName = $_SESSION['comName'];
     // get employee details
     $connection = new PDO($dsn, $username, $password, $options);
-    $sql = "CALL admin_view_comDetail_emp($comName)";
+    $sql = "CALL admin_view_comDetail_emp('$comName')";
     $statement = $connection->prepare($sql);
     $statement->execute();
     $employeeDetail = $statement->fetchAll();
@@ -20,7 +23,7 @@ if (isset($_POST['submit'])) {
         }
         return $out;
     }
-    
+
     if ($employeeDetail) {
         $listEmployees = array_zip($employeeDetail['EmpFirstname'], $employeeDetail['EmpLastname']);
         $employeeNames = implode(",", $listEmployees);
@@ -28,7 +31,7 @@ if (isset($_POST['submit'])) {
 
     // get theater details
     $connection = new PDO($dsn, $username, $password, $options);
-    $sql = "CALL admin_view_comDetail_th($comName)";
+    $sql = "CALL admin_view_comDetail_th('$comName')";
     $statement = $connection->prepare($sql);
     $statement->execute();
     $theaterDetail = $statement->fetchAll();
@@ -46,12 +49,16 @@ if (isset($_POST['submit'])) {
 <h1>Company Detail</h1>
 
 <h3>Name</h3>
-<?php 
+<?php
+  if($comName) {
     echo $comName;
+  }
 ?>
 <h3>Employees</h3>
 <?php
+  if($employeeNames) {
     echo $employeeNames;
+  }
 ?>
 <br><br>
 

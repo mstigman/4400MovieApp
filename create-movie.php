@@ -29,7 +29,7 @@
 <html>
 <body>
 
-<h1>Create Theater</h1>
+<h1>Create Movie</h1>
 
 <form action="" method="post" id="movie_form">
   Name: <input type="text" name="movName"><br><br>

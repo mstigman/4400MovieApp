@@ -1,42 +1,21 @@
 <?php
     require "./config.php";
     require "./common.php";
-    static $sortBy = "username";
-    static $sortDirect = "ASC";
 ?>
 
-<?php
-if(isset($_POST['sort_by_username'])) {
-  $sortBy = 'username';
- } else if(isset($_POST['sort_by_card'])) {
-  $sortBy = 'creditCardCount';
- } else if(isset($_POST['sort_by_usertype'])) {
-  $sortBy = 'userType';
- } else if(isset($_POST['status'])) {
-  $sortBy = 'status';
- }
-?>
-<?php
- if(isset($_POST['toggleASC'])) {
-  $sortDirect = "ASC";
- } else if(isset($_POST['toggleDESC'])) {
-  $sortDirect = "DESC";
- }
- ?>
 
 <?php //read and result
 $result = 0;
-echo $sortBy, $sortDirect;
 if (isset($_POST['Filter'])) {
 
   try {
     $connection = new PDO($dsn, $username, $password, $options);
-
+    session_start();
     $filter = array(
-      "username"   => "beepod",
+      "username"   =>$_POST['username'],
       "status"     => $_POST['status'],
-      "sortBy"     => $sortBy,
-      "sortDirect" => $sortDirect,
+      "sortBy"     => 'username',
+      "sortDirect" => 'ASC',
     );
 
     $param = implode("','", $filter);
@@ -45,10 +24,9 @@ if (isset($_POST['Filter'])) {
     $location = $_POST['location'];
 
     $statement = $connection->prepare($sql);
-    $statement->bindParam(':location', $location, PDO::PARAM_STR);
     $statement->execute();
 
-    $result = $statement->fetchAll();
+    //$result = $statement->fetchAll();
     echo "test";
   } catch(PDOException $error) {
     echo $sql . "<br>" . $error->getMessage();
@@ -95,9 +73,7 @@ implode(", ", array_keys($new_user)),
 <form action="" method="post" id="find_by_username">
   Username:  <input type="text" name="username">&nbsp;
   <input type="submit" value="Find">
-</form>
 
-<form action="" method="post" id="filter_by_status">
     Status: <select name="status">
         <option value="All">All</option>
         <option value="Pending">Pending</option>
@@ -111,12 +87,10 @@ implode(", ", array_keys($new_user)),
 <table style="width:40%">
   <thead>
   <tr>
-    <th>Username <button type="submit" name="sort_by_username" value="sort_by_username">Sort</button></th>
-    <th>Credit Card Count <button type="submit" name="sort_by_card">Sort</button></th>
-    <th>User Type <button type="submit" name="sort_by_usertype">Sort</button></th>
-    <th>Status <button type="submit" name="status">Sort</button></th>
-    <button type="submit" name="toggleASC">ascend</button></th>
-    <button type="submit" name="toggleDESC">descend</button></th>
+    <th>Username <button type="submit" name="sort_by_username_ASC" value="sort_by_username">Sort ASC</button><button type="submit" name="sort_by_username_DESC" value="sort_by_username">Sort DESC</button></th>
+    <th>Credit Card Count <button type="submit" name="sort_by_card_ASC">Sort ASC</button><button type="submit" name="sort_by_card_DESC">Sort DESC</button></th>
+    <th>User Type <button type="submit" name="sort_by_usertype_ASC">Sort ASC</button><button type="submit" name="sort_by_usertype_DESC" value="sort_by_username">Sort DESC</button></th>
+    <th>Status <button type="submit" name="status_ASC">Sort ASC</button><button type="submit" name="status_DESC">Sort DESC</button></th>
   </tr>
 </thead>
 <tbody>
