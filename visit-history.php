@@ -4,32 +4,9 @@
 ?>
 
 <?php
-// Initial data for the table without filters   
-    $result = 0; 
-    try {
-        session_start();
-
-        $connection = new PDO($dsn, $username, $password, $options);
-        $username = $_SESSION['username'];
-        $sql = "SELECT thName, thStreet, thCity, thState, thZipcode, comName, visitDate
-        FROM uservisit NATURAL JOIN theater
-        WHERE (username = $username)";
-
-        $statement = $connection->prepare($sql);
-        $statement->execute();
-        $result = $statement->fetchAll();
-    } catch(PDOException $error) {
-        echo $sql . "<br>" . $error->getMessage();
-    }
-    
-?>
-
-
-<?php
-    $result = 0;
+    session_start();
     if (isset($_POST['Submit'])) {
         try {
-            session_start();
 
             $connection = new PDO($dsn, $username, $password, $options);
             $param = array(
@@ -45,12 +22,35 @@
             $statement = $connection->prepare($sql);
             $statement->execute();
 
+            $sql = "SELECT * FROM UserVisitHistory";
+            $statement = $connection->prepare($sql);
+            $statement->execute();
+
             $result = $statement->fetchAll();
         } catch(PDOException $error) {
             echo $sql . "<br>" . $error->getMessage();
         }
-    }
+    } else {
+    // Initial data for the table without filters   
+        try {
+
+            $connection = new PDO($dsn, $username, $password, $options);
+            $user = $_SESSION['username'];
+            $sql = "SELECT thName, thStreet, thCity, thState, thZipcode, comName, visitDate
+            FROM uservisit NATURAL JOIN theater
+            WHERE (username = '$user')";
+
+            $statement = $connection->prepare($sql);
+            $statement->execute();
+            $result = $statement->fetchAll();
+            
+        } catch(PDOException $error) {
+            echo $sql . "<br>" . $error->getMessage();
+        }
+}
+    
 ?>
+
 
 <?php
 /**
@@ -101,16 +101,17 @@ Company Name: <select name="company" form="filter_form">
         </tr>
      </thead>
   <tbody>
-    <?php if ($result) { ?>
-    <?php foreach ($result as $row) { ?>
-      <tr>
-        <td><?php echo escape($row["thName"]); ?>
-        <td><?php echo $row["thStreet"], ', ', $row['thCity'], ', ', $row['thState'], ' ', $row['thZipcode']; ?></td>
-        <td><?php echo escape($row["comName"]); ?></td>
-        <td><?php echo escape($row["visitDate"]); ?></td>
-      </tr>
-    <?php } ?>
-  <?php } ?>
+ 
+      <?php if ($result) {?>
+        <?php foreach ($result as $row) { ?>
+          <tr>
+            <td><?php echo escape($row["thName"]); ?></td>
+            <td><?php echo $row["thStreet"], ', ', $row['thCity'], ', ', $row['thState'], ' ', $row['thZipcode']; ?></td>
+            <td><?php echo escape($row["comName"]); ?></td>
+            <td><?php echo escape($row["visitDate"]); ?></td>
+          </tr>
+        <?php } ?>
+      <?php } ?>
   </tbody>
 </table>
 
