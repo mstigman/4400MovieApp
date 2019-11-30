@@ -11,12 +11,11 @@ if (isset($_POST['submit_filters'])) {
     $connection = new PDO($dsn, $username, $password, $options);
 
     $param = array(
-      'comName' =>  '',
+      'comName' =>  $_POST['company_name'],
       'minCity' =>  $_POST['city_lower'],
       'maxCity' =>  $_POST['city_upper'],
       'minTheater' =>  $_POST['theater_lower'],
       'MaxTheater' =>  $_POST['theater_upper'],
-      'MaxTheater' =>  $_POST['city_lower'],
       'minEmployee' =>  $_POST['employee_lower'],
       'maxEmployee' =>  $_POST['employee_upper'],
       'sortBy' =>  'comName',

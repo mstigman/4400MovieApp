@@ -1,19 +1,35 @@
-<?php //read and result
-if (isset($_POST['submit'])) {
-  try {
-    require "./config.php";
+<?php
+  require "./config.php";
     require "./common.php";
+?>
+
+<?php //read and result
+$result = 0;
+if (isset($_POST['Filter'])) {
+  try {
+
 
     $connection = new PDO($dsn, $username, $password, $options);
 
-    $sql = "SELECT *
-    FROM users
-    WHERE location = :location";
+    $param = array(
+      "moveName"  =>  $_POST['movie_name'],
+      "comName"  =>  $_POST['company_name'],
+      "city"  =>  $_POST['city'],
+      "state"  =>  $_POST['state'],
+      "minMovPlay"  =>  $_POST['play_date_lower'],
+      "maxMovPlay"  =>  $_POST['play_date_upper'],
+    );
 
-    $location = $_POST['location'];
+    $args = implode("','", $param);
+    $sql = "CALL customer_filter_mov('$args')";
+
 
     $statement = $connection->prepare($sql);
-    $statement->bindParam(':location', $location, PDO::PARAM_STR);
+    $statement->execute();
+
+    $sql = "SELECT * From CosFilterMovie";
+
+    $statement = $connection->prepare($sql);
     $statement->execute();
 
     $result = $statement->fetchAll();
@@ -22,67 +38,114 @@ if (isset($_POST['submit'])) {
   }
 }
 ?>
-<?php //insert and update
-if (isset($_POST['submit'])) {
-  require "./config.php";
-  require "./common.php";
+<?php
+
+/**
+  * Function to query information based on
+  * a parameter: in this case, location.
+  *
+  */
 
   try {
+
     $connection = new PDO($dsn, $username, $password, $options);
 
-    $new_user = array(
-      "firstname" => $_POST['firstname'],
-      "lastname"  => $_POST['lastname'],
-      "email"     => $_POST['email'],
-      "age"       => $_POST['age'],
-      "location"  => $_POST['location']
-    );
+    $sql = "SELECT *
+    FROM company";
 
-    $sql = sprintf(
-"INSERT INTO %s (%s) values (%s)",
-"users",
-implode(", ", array_keys($new_user)),
-":" . implode(", :", array_keys($new_user))
-    );
 
     $statement = $connection->prepare($sql);
-    $statement->execute($new_user);
+    $statement->execute();
+
+    $companies = $statement->fetchAll();
   } catch(PDOException $error) {
     echo $sql . "<br>" . $error->getMessage();
   }
-
-}
 ?>
 
+<?php
+
+/**
+  * Function to query information based on
+  * a parameter: in this case, location.
+  *
+  */
+
+  try {
+
+    $connection = new PDO($dsn, $username, $password, $options);
+
+    $sql = "SELECT *
+    FROM movie";
+
+
+    $statement = $connection->prepare($sql);
+    $statement->execute();
+
+    $movies = $statement->fetchAll();
+  } catch(PDOException $error) {
+    echo $sql . "<br>" . $error->getMessage();
+  }
+?>
+
+
+
+<?php
+
+/**
+  * Function to query information based on
+  * a parameter: in this case, location.
+  *
+  */
+
+  try {
+
+    $connection = new PDO($dsn, $username, $password, $options);
+
+    session_start();
+    $name = $_SESSION['username'];
+    $sql = "SELECT *
+    FROM creditcard
+    WHERE username = '$name'";
+
+
+    $statement = $connection->prepare($sql);
+    $statement->execute();
+
+    $credit_cards = $statement->fetchAll();
+  } catch(PDOException $error) {
+    echo $sql . "<br>" . $error->getMessage();
+  }
+?>
 <!DOCTYPE html>
 <html>
 <body>
 
 <h1>Explore Movie</h1>
+<form action="" method="post" id="filter_form">
 
 Movie Name: <select name="movie_name" form="filter_form">
   <?php foreach($movies as $movies): ?>
-     <option value="<?= $movies['id']; ?>"><?= $movies['name']; ?></option>
+     <option value="<?= $movies['movName']; ?>"><?= $movies['movName']; ?></option>
   <?php endforeach; ?>
 </select>
 
 <br><br>
 
 Company Name: <select name="company_name" form="filter_form">
-  <?php foreach($companies as $companies): ?>
-     <option value="<?= $companies['id']; ?>"><?= $companies['name']; ?></option>
-  <?php endforeach; ?>
+    <?php foreach($companies as $company): ?>
+        <option value="<?= $company['comName']; ?>"><?= $company['comName']; ?></option>
+    <?php endforeach; ?>
 </select>
 
 <br><br>
 
 
 
-<form action="" method="" id="filter_form">
   City <input type="text" name="city" >
 <br><br>
   State:
-  <select>
+  <select name="state">
     <option value="AL">Alabama (AL)</option>
     <option value="AK">Alaska (AK)</option>
     <option value="AZ">Arizona (AZ)</option>
@@ -136,10 +199,10 @@ Company Name: <select name="company_name" form="filter_form">
     <option value="WY">Wyoming</option>
 </select>
 <br><br>
-  # Movie Play Date:  <input type="text" name="play_date_lower" maxlength="11" size="11">&nbsp;
-  -- <input type="text" name="play_date_upper" maxlength="11" size="11">&nbsp;
+  # Movie Play Date:  <input type="date" name="play_date_lower">&nbsp;
+  -- <input type="date" name="play_date_upper">&nbsp;
 <br><br>
-<input type="submit" value="Filter" name="submit_filters" style="height:80px; width:80px">
+<input type="submit" value="Filter" name="Filter" style="height:80px; width:80px">
 </form>
 
 <hr>
@@ -155,25 +218,25 @@ Company Name: <select name="company_name" form="filter_form">
             <th>Play Date</th>
         </tr>
      </thead>
-     <tbody>
-        <tr>
-            <td>
-                 <div class="radio">
-                      <label><input type="radio" name="optradio">TIKI</label>
-                 </div>
-            </td>
-            <td>Value </td>
-            <td>Value            </td>
-            <td>Value </td>
-            <td>Value </td>
-         </tr>
-     </tbody>
+  <tbody>
+    <?php if ($result) { ?>
+    <?php foreach ($result as $row) { ?>
+      <tr>
+        <td><?php echo escape($row["movName"]); ?>
+        <td><?php echo escape($row["thName"]); ?></td>
+        <td><?php echo escape($row["comName"]); ?></td>
+        <td><?php echo escape($row["creditCardNum"]); ?></td>
+        <td><?php echo escape($row["movPlayDate"]); ?></td>
+      </tr>
+    <?php } ?>
+  <?php } ?>
+  </tbody>
  </table>
 
 <br>
 Card Number:  <select name="card_number" form="view_movie">
   <?php foreach($credit_cards as $credit_cards): ?>
-     <option value="<?= $credit_cards['id']; ?>"><?= $credit_cards['number']; ?></option>
+     <option value="<?= $credit_cards['creditCardNum']; ?>"><?= $credit_cards['creditCardNum']; ?></option>
   <?php endforeach; ?>
 </select>
 

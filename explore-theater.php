@@ -1,20 +1,33 @@
 
-<?php //read and result
-if (isset($_POST['submit'])) {
-  try {
-    require "./config.php";
+<?php
+ require "./config.php";
     require "./common.php";
+?>
+
+<?php //read and result
+$result = 0;
+if (isset($_POST['Filter'])) {
+  try {
 
     $connection = new PDO($dsn, $username, $password, $options);
 
-    $sql = "SELECT *
-    FROM users
-    WHERE location = :location";
+    $param = array(
+      "thName"  =>  $_POST['theater_name'],
+      "comName"  =>  $_POST['company_name'],
+      "city"  =>  $_POST['city'],
+      "state"  =>  $_POST['state'],
+    );
 
-    $location = $_POST['location'];
+    $args = implode("','", $param);
+    $sql = "CALL user_filter_th('$args')";
+
 
     $statement = $connection->prepare($sql);
-    $statement->bindParam(':location', $location, PDO::PARAM_STR);
+    $statement->execute();
+
+    $sql = "SELECT * From UserFilterTh";
+
+    $statement = $connection->prepare($sql);
     $statement->execute();
 
     $result = $statement->fetchAll();
@@ -23,36 +36,54 @@ if (isset($_POST['submit'])) {
   }
 }
 ?>
-<?php //insert and update
-if (isset($_POST['submit'])) {
-  require "./config.php";
-  require "./common.php";
+<?php
+
+/**
+  * Function to query information based on
+  * a parameter: in this case, location.
+  *
+  */
 
   try {
+
     $connection = new PDO($dsn, $username, $password, $options);
 
-    $new_user = array(
-      "firstname" => $_POST['firstname'],
-      "lastname"  => $_POST['lastname'],
-      "email"     => $_POST['email'],
-      "age"       => $_POST['age'],
-      "location"  => $_POST['location']
-    );
+    $sql = "SELECT *
+    FROM company";
 
-    $sql = sprintf(
-"INSERT INTO %s (%s) values (%s)",
-"users",
-implode(", ", array_keys($new_user)),
-":" . implode(", :", array_keys($new_user))
-    );
 
     $statement = $connection->prepare($sql);
-    $statement->execute($new_user);
+    $statement->execute();
+
+    $companies = $statement->fetchAll();
   } catch(PDOException $error) {
     echo $sql . "<br>" . $error->getMessage();
   }
+?>
 
-}
+<?php
+
+/**
+  * Function to query information based on
+  * a parameter: in this case, location.
+  *
+  */
+
+  try {
+
+    $connection = new PDO($dsn, $username, $password, $options);
+
+    $sql = "SELECT *
+    FROM theater";
+
+
+    $statement = $connection->prepare($sql);
+    $statement->execute();
+
+    $theaters = $statement->fetchAll();
+  } catch(PDOException $error) {
+    echo $sql . "<br>" . $error->getMessage();
+  }
 ?>
 
 <!DOCTYPE html>
@@ -60,30 +91,29 @@ implode(", ", array_keys($new_user)),
 <body>
 
 <h1>Explore Theater</h1>
-
+<form action="" method="post" id="filter_form">
 Theater Name: <select name="theater_name" form="filter_form">
   <?php foreach($theaters as $theaters): ?>
-     <option value="<?= $theaters['id']; ?>"><?= $theaters['name']; ?></option>
+     <option value="<?= $theaters['thName']; ?>"><?= $theaters['thName']; ?></option>
   <?php endforeach; ?>
 </select>
 
 <br><br>
 
 Company Name: <select name="company_name" form="filter_form">
-  <?php foreach($companies as $companies): ?>
-     <option value="<?= $companies['id']; ?>"><?= $companies['name']; ?></option>
-  <?php endforeach; ?>
+    <?php foreach($companies as $company): ?>
+        <option value="<?= $company['comName']; ?>"><?= $company['comName']; ?></option>
+    <?php endforeach; ?>
 </select>
 
 <br><br>
 
 
 
-<form action="" method="" id="filter_form">
   City <input type="text" name="city" >
 <br><br>
   State:
-  <select>
+  <select name="state">
     <option value="AL">Alabama (AL)</option>
     <option value="AK">Alaska (AK)</option>
     <option value="AZ">Arizona (AZ)</option>
@@ -137,7 +167,7 @@ Company Name: <select name="company_name" form="filter_form">
     <option value="WY">Wyoming</option>
 </select>
 <br><br>
-<input type="submit" value="Filter" name="submit_filters" style="height:80px; width:80px">
+<input type="submit" value="Filter" name="Filter" style="height:80px; width:80px">
 </form>
 
 <hr>
@@ -150,17 +180,19 @@ Company Name: <select name="company_name" form="filter_form">
             <th>Company</th>
         </tr>
      </thead>
-     <tbody>
-        <tr>
-            <td>
-                 <div class="radio">
-                      <label><input type="radio" name="optradio">AMC</label>
-                 </div>
-            </td>
-            <td>Value </td>
-            <td>Value </td>
-         </tr>
-     </tbody>
+  <tbody>
+    <?php if ($result) { ?>
+    <?php foreach ($result as $row) { ?>
+      <tr>
+        <td><?php echo escape($row["thName"]); ?>
+        <td><?php echo escape($row["thStreet"]); ?></td>
+        <td><?php echo escape($row["thState"]); ?></td>
+        <td><?php echo escape($row["thZipCode"]); ?></td>
+        <td><?php echo escape($row["comName"]); ?></td>
+      </tr>
+    <?php } ?>
+  <?php } ?>
+  </tbody>
  </table>
 
 <br>

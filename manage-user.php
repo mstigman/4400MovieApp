@@ -21,13 +21,16 @@ if (isset($_POST['Filter'])) {
     $param = implode("','", $filter);
     $sql = "Call admin_filter_user('$param')";
 
-    $location = $_POST['location'];
 
     $statement = $connection->prepare($sql);
     $statement->execute();
 
-    //$result = $statement->fetchAll();
-    echo "test";
+    $sql = "SELECT * FROM AdFilterUser";
+
+    $statement = $connection->prepare($sql);
+    $statement->execute();
+
+    $result = $statement->fetchAll();
   } catch(PDOException $error) {
     echo $sql . "<br>" . $error->getMessage();
   }

@@ -10,7 +10,7 @@ if (isset($_POST['Filter'])) {
     $connection = new PDO($dsn, $username, $password, $options);
     session_start();
     $param = array(
-      "username"   => $_SESSION['username'],
+      "username"   => 'FatherAI',
       "movName"   => $_POST['movie_name'],
       "minMovDur"   => $_POST['duration_lower'],
       "maxMovDur"   => $_POST['duration_upper'],
@@ -24,7 +24,6 @@ if (isset($_POST['Filter'])) {
     $args = implode("','", $param);
     $sql = "CALL manager_filter_th('$args')";
 
-    echo $sql;
     $statement = $connection->prepare($sql);
     $statement->execute();
 
@@ -79,10 +78,10 @@ if (isset($_POST['Filter'])) {
         <?php if ($result) {?>
         <?php foreach ($result as $row) { ?>
           <tr>
-            <td><?php echo escape($row["username"]); ?></td>
-            <td><?php echo escape($row["creditCardCount"]); ?></td>
-            <td><?php echo escape($row["userType"]); ?></td>
-            <td><?php echo escape($row["status"]); ?></td>
+            <td><?php echo escape($row["movName"]); ?></td>
+            <td><?php echo escape($row["movDuration"]); ?></td>
+            <td><?php echo escape($row["movReleaseDate"]); ?></td>
+            <td><?php echo escape($row["movPlayDate"]); ?></td>
           </tr>
         <?php } ?>
       <?php } ?>
