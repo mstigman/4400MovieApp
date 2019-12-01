@@ -191,7 +191,24 @@ if (isset($_POST['sort_by_company_name_ASC'])) {
         } catch(PDOException $error) {
             echo $sql . "<br>" . $error->getMessage();
         }
-    
+} else {
+    try {
+
+        $connection = new PDO($dsn, $username, $password, $options);
+        $sql = "CALL admin_filter_company('','0','100','0','100','0','100','comName','ASC')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        echo $sql;
+        $sql = "SELECT * FROM AdFilterCom";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+
+        $result  = $statement->fetchAll();
+
+    } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+    }
+
 }
 ?>
 
@@ -234,7 +251,7 @@ if (isset($_POST['sort_by_company_name_ASC'])) {
 
 <h1>Manage Company</h1>
 <form action="" method="post" id="filter_form">
-&nbsp; Name: <select name="company_name" form="filter_form">
+Company Name: <select name="company_name" form="filter_form">
     <option value="">ALL</option>
     <?php foreach($companies as $company): ?>
         <option value="<?= $company['comName']; ?>"><?= $company['comName']; ?></option>
