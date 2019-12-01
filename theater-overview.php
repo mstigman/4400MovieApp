@@ -10,7 +10,7 @@ if (isset($_POST['Filter'])) {
     $connection = new PDO($dsn, $username, $password, $options);
     session_start();
     $param = array(
-      "username"   => 'FatherAI',
+      "username"   => $_SESSION['username'],
       "movName"   => $_POST['movie_name'],
       "minMovDur"   => $_POST['duration_lower'],
       "maxMovDur"   => $_POST['duration_upper'],

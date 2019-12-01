@@ -4,280 +4,222 @@
 ?>
 
 <?php //read and result
+session_start();
+function buildParams($arrayParam, $sortBy, $sortDirection) {
+    $returnParam = $arrayParam;
+    array_push($returnParam, $sortBy);
+    array_push($returnParam, $sortDirection);
+    return $returnParam;
+}
 $result = 0;
-$param = 0;
-if (isset($_POST['submit_filters'])) {
-  try {
+if (isset($_POST['sort_by_company_name_ASC'])) {
+    try{
+        $connection = new PDO($dsn, $username, $password, $options);
+        $parameters = $_SESSION['comParameters'];
+        $param = buildParams($parameters, 'comName', 'ASC');
+        $args = implode("','", $param);
+        $sql = "CALL admin_filter_company('$args')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $sql = "SELECT * FROM AdFilterCom";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $result  = $statement->fetchAll();
+    } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+    }
+} else if (isset($_POST['sort_by_company_name_DESC'])){
+    try{
+        $connection = new PDO($dsn, $username, $password, $options);
+        $parameters = $_SESSION['comParameters'];
+        $param = buildParams($parameters, 'comName', 'DESC');
+        $args = implode("','", $param);
+        $sql = "CALL admin_filter_company('$args')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        echo $sql;
+        $sql = "SELECT * FROM AdFilterCom";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $result  = $statement->fetchAll();
+    } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+    }
+} else if (isset($_POST['sort_by_cities_ASC'])){
+    try{
+        $connection = new PDO($dsn, $username, $password, $options);
+        $parameters = $_SESSION['comParameters'];
+        $param = buildParams($parameters, 'numCityCover', 'ASC');
+        $args = implode("','", $param);
+        $sql = "CALL admin_filter_company('$args')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        echo $sql;
+        $sql = "SELECT * FROM AdFilterCom";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $result  = $statement->fetchAll();
+    } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+    }
+} else if (isset($_POST['sort_by_cities_DESC'])){
+    try{
+        $connection = new PDO($dsn, $username, $password, $options);
+        $parameters = $_SESSION['comParameters'];
+        $param = buildParams($parameters, 'numCityCover', 'DESC');
+        $args = implode("','", $param);
+        $sql = "CALL admin_filter_company('$args')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        echo $sql;
+        $sql = "SELECT * FROM AdFilterCom";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $result  = $statement->fetchAll();
+    } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+    }
+} else if (isset($_POST['sort_by_theaters_ASC'])){
+    try{
+        $connection = new PDO($dsn, $username, $password, $options);
+        $parameters = $_SESSION['comParameters'];
+        $param = buildParams($parameters, 'numTheater', 'ASC');
+        $args = implode("','", $param);
+        $sql = "CALL admin_filter_company('$args')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        echo $sql;
+        $sql = "SELECT * FROM AdFilterCom";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $result  = $statement->fetchAll();
+    } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+    }
+} else if (isset($_POST['sort_by_theaters_DESC'])){
+    try{
+        $connection = new PDO($dsn, $username, $password, $options);
+        $parameters = $_SESSION['comParameters'];
+        $param = buildParams($parameters, 'numTheater', 'DESC');
+        $args = implode("','", $param);
+        $sql = "CALL admin_filter_company('$args')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        echo $sql;
+        $sql = "SELECT * FROM AdFilterCom";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $result  = $statement->fetchAll();
+    } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+    }
+} else if (isset($_POST['sort_by_employee_ASC'])){
+    try{
+        $connection = new PDO($dsn, $username, $password, $options);
+        $parameters = $_SESSION['comParameters'];
+        $param = buildParams($parameters, 'numEmployee', 'ASC');
+        $args = implode("','", $param);
+        $sql = "CALL admin_filter_company('$args')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        echo $sql;
+        $sql = "SELECT * FROM AdFilterCom";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $result  = $statement->fetchAll();
+    } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+    }
+} else if (isset($_POST['sort_by_employee_DESC'])){
+    try{
+        $connection = new PDO($dsn, $username, $password, $options);
+        $parameters = $_SESSION['comParameters'];
+        $param = buildParams($parameters, 'numEmployee', 'DESC');
+        $args = implode("','", $param);
+        $sql = "CALL admin_filter_company('$args')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        echo $sql;
+        $sql = "SELECT * FROM AdFilterCom";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $result  = $statement->fetchAll();
+    } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+    }
+} else if (isset($_POST['submit_filters'])) {
 
-    $connection = new PDO($dsn, $username, $password, $options);
-
-    $param = array(
-      'comName' =>  $_POST['company_name'],
-      'minCity' =>  $_POST['city_lower'],
-      'maxCity' =>  $_POST['city_upper'],
-      'minTheater' =>  $_POST['theater_lower'],
-      'MaxTheater' =>  $_POST['theater_upper'],
-      'minEmployee' =>  $_POST['employee_lower'],
-      'maxEmployee' =>  $_POST['employee_upper'],
-      'sortBy' =>  'comName',
-      'sortDirect' =>  'ASC',
-
-    );
-
-    $args = implode("','", $param);
-    $sql = "CALL admin_filter_company('$args')";
-
-
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-    $sql = "SELECT * FROM AdFilterCom";
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $result  = $statement->fetchAll();
-
-  } catch(PDOException $error) {
-    echo $sql . "<br>" . $error->getMessage();
-  }
+        try {
+            $connection = new PDO($dsn, $username, $password, $options);
+            $parameters = array(
+            'comName' =>  $_POST['company_name'],
+            'minCity' =>  $_POST['city_lower'],
+            'maxCity' =>  $_POST['city_upper'],
+            'minTheater' =>  $_POST['theater_lower'],
+            'MaxTheater' =>  $_POST['theater_upper'],
+            'minEmployee' =>  $_POST['employee_lower'],
+            'maxEmployee' =>  $_POST['employee_upper'],
+            //'sortBy' =>  'comName',
+            //'sortDirect' =>  'ASC',
+            );
+            // Store the parameters in SESSION
+            $_SESSION['comParameters'] = $parameters;
+            $param = buildParams($parameters, 'comName', 'ASC');
+            $args = implode("','", $param);
+            $sql = "CALL admin_filter_company('$args')";
+            $statement = $connection->prepare($sql);
+            $statement->execute();
+            echo $sql;
+            $sql = "SELECT * FROM AdFilterCom";
+            $statement = $connection->prepare($sql);
+            $statement->execute();
+            $result  = $statement->fetchAll();
+        } catch(PDOException $error) {
+            echo $sql . "<br>" . $error->getMessage();
+        }
+} else {
+    try {
+        $connection = new PDO($dsn, $username, $password, $options);
+        $sql = "CALL admin_filter_company('','0','100','0','100','0','100','comName','ASC')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        echo $sql;
+        $sql = "SELECT * FROM AdFilterCom";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $result  = $statement->fetchAll();
+    } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
+    }
 }
 ?>
 
 <?php
   if (isset($_POST['detail'])) {
-    session_start();
-    $_SESSION['comName'] = $_POST['company_name'];
+    $_SESSION['comName'] = $_POST['selectedCom'];
     header("Location:company-detail.php");
   }
 ?>
 
-<?php
 
+<?php
 /**
   * Function to query information based on
   * a parameter: in this case, location.
   *
   */
-
   try {
-
     $connection = new PDO($dsn, $username, $password, $options);
-
     $sql = "SELECT *
     FROM company";
-
-
     $statement = $connection->prepare($sql);
     $statement->execute();
-
     $companies = $statement->fetchAll();
   } catch(PDOException $error) {
     echo $sql . "<br>" . $error->getMessage();
   }
 ?>
 
-<?php
-if (isset($_POST['sort_by_company_name_ASC'])) {
-    $connection = new PDO($dsn, $username, $password, $options);
-
-    $args = implode("','", $param);
-    $sql = "CALL admin_filter_company('$args')";
-
-
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $sql = "SELECT * FROM AdFilterCom";
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $result  = $statement->fetchAll();
-} else if (isset($_POST['sort_by_company_name_DESC'])) {
-    $connection = new PDO($dsn, $username, $password, $options);
-
-    $param = array(
-      'comName' =>  $_POST['company_name'],
-      'minCity' =>  $_POST['city_lower'],
-      'maxCity' =>  $_POST['city_upper'],
-      'minTheater' =>  $_POST['theater_lower'],
-      'MaxTheater' =>  $_POST['theater_upper'],
-      'minEmployee' =>  $_POST['employee_lower'],
-      'maxEmployee' =>  $_POST['employee_upper'],
-      'sortBy' =>  'comName',
-      'sortDirect' =>  'DESC',
-
-    );
-
-    $args = implode("','", $param);
-    $sql = "CALL admin_filter_company('$args')";
-
-
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $sql = "SELECT * FROM AdFilterCom";
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $result  = $statement->fetchAll();
-} else if (isset($_POST['sort_by_cities_ASC'])) {
-    $connection = new PDO($dsn, $username, $password, $options);
-
-    $param['sortBy'] = 'numCityCover';
-
-    $args = implode("','", $param);
-    $sql = "CALL admin_filter_company('$args')";
-
-
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $sql = "SELECT * FROM AdFilterCom";
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $result  = $statement->fetchAll();
-} else if (isset($_POST['sort_by_cities_DESC'])) {
-    $connection = new PDO($dsn, $username, $password, $options);
-
-    $param = array(
-      'comName' =>  $_POST['company_name'],
-      'minCity' =>  $_POST['city_lower'],
-      'maxCity' =>  $_POST['city_upper'],
-      'minTheater' =>  $_POST['theater_lower'],
-      'MaxTheater' =>  $_POST['theater_upper'],
-      'minEmployee' =>  $_POST['employee_lower'],
-      'maxEmployee' =>  $_POST['employee_upper'],
-      'sortBy' =>  'numCityCover',
-      'sortDirect' =>  'DESC',
-
-    );
-
-    $args = implode("','", $param);
-    $sql = "CALL admin_filter_company('$args')";
-
-
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $sql = "SELECT * FROM AdFilterCom";
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $result  = $statement->fetchAll();
-} else if (isset($_POST['sort_by_theaters_ASC'])) {
-    $connection = new PDO($dsn, $username, $password, $options);
-
-    $param = array(
-      'comName' =>  $_POST['company_name'],
-      'minCity' =>  $_POST['city_lower'],
-      'maxCity' =>  $_POST['city_upper'],
-      'minTheater' =>  $_POST['theater_lower'],
-      'MaxTheater' =>  $_POST['theater_upper'],
-      'minEmployee' =>  $_POST['employee_lower'],
-      'maxEmployee' =>  $_POST['employee_upper'],
-      'sortBy' =>  'numTheater',
-      'sortDirect' =>  'ASC',
-
-    );
-
-    $args = implode("','", $param);
-    $sql = "CALL admin_filter_company('$args')";
-
-
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $sql = "SELECT * FROM AdFilterCom";
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $result  = $statement->fetchAll();
-} else if (isset($_POST['sort_by_theaters_DESC'])) {
-    $connection = new PDO($dsn, $username, $password, $options);
-
-    $param = array(
-      'comName' =>  $_POST['company_name'],
-      'minCity' =>  $_POST['city_lower'],
-      'maxCity' =>  $_POST['city_upper'],
-      'minTheater' =>  $_POST['theater_lower'],
-      'MaxTheater' =>  $_POST['theater_upper'],
-      'minEmployee' =>  $_POST['employee_lower'],
-      'maxEmployee' =>  $_POST['employee_upper'],
-      'sortBy' =>  'numTheater',
-      'sortDirect' =>  'DESC',
-
-    );
-
-    $args = implode("','", $param);
-    $sql = "CALL admin_filter_company('$args')";
-
-
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $sql = "SELECT * FROM AdFilterCom";
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $result  = $statement->fetchAll();
-} else if (isset($_POST['sort_by_employee_ASC'])) {
-    $connection = new PDO($dsn, $username, $password, $options);
-
-    $param = array(
-      'comName' =>  $_POST['company_name'],
-      'minCity' =>  $_POST['city_lower'],
-      'maxCity' =>  $_POST['city_upper'],
-      'minTheater' =>  $_POST['theater_lower'],
-      'MaxTheater' =>  $_POST['theater_upper'],
-      'minEmployee' =>  $_POST['employee_lower'],
-      'maxEmployee' =>  $_POST['employee_upper'],
-      'sortBy' =>  'numEmployee',
-      'sortDirect' =>  'ASC',
-
-    );
-
-    $args = implode("','", $param);
-    $sql = "CALL admin_filter_company('$args')";
-
-
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $sql = "SELECT * FROM AdFilterCom";
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $result  = $statement->fetchAll();
-} else if (isset($_POST['sort_by_employee_DESC'])) {
-    $connection = new PDO($dsn, $username, $password, $options);
-
-    $param = array(
-      'comName' =>  $_POST['company_name'],
-      'minCity' =>  $_POST['city_lower'],
-      'maxCity' =>  $_POST['city_upper'],
-      'minTheater' =>  $_POST['theater_lower'],
-      'MaxTheater' =>  $_POST['theater_upper'],
-      'minEmployee' =>  $_POST['employee_lower'],
-      'maxEmployee' =>  $_POST['employee_upper'],
-      'sortBy' =>  'numEmployee',
-      'sortDirect' =>  'DESC',
-
-    );
-
-    $args = implode("','", $param);
-    $sql = "CALL admin_filter_company('$args')";
-
-
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $sql = "SELECT * FROM AdFilterCom";
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-
-    $result  = $statement->fetchAll();
-}
-?>
 
 <!DOCTYPE html>
 <html>
@@ -285,11 +227,11 @@ if (isset($_POST['sort_by_company_name_ASC'])) {
 
 <h1>Manage Company</h1>
 <form action="" method="post" id="filter_form">
-&nbsp; Name: <select name="company_name" form="filter_form">
+Company Name: <select name="company_name" form="filter_form">
+    <option value="">ALL</option>
     <?php foreach($companies as $company): ?>
         <option value="<?= $company['comName']; ?>"><?= $company['comName']; ?></option>
     <?php endforeach; ?>
-      <option value="">all</option>
 </select>
 
 
@@ -312,12 +254,14 @@ if (isset($_POST['sort_by_company_name_ASC'])) {
 <button type="button" name="create_theater" onclick="location.href = 'create-theater.php';" style="height:20px; width:130px">Create Theater</button>
 &nbsp;
 <button type="submit" name="detail" style="height:20px; width:80px">Detail</button>
+
 <br><br>
 
 <hr>
 <table style="width:40%">
     <thead>
   <tr>
+    <th>Select</th>
     <th>Name <button type="submit" name="sort_by_company_name_ASC">Sort ASC</button><button type="submit" name="sort_by_company_name_DESC">Sort DESC</button></th>
     <th>#CityCovered <button type="submit" name="sort_by_cities_ASC">Sort ASC</button><button type="submit" name="sort_by_cities_DESC">Sort DESC</button></th>
     <th>#Theaters <button type="submit" name="sort_by_theaters_ASC">Sort ASC</button><button type="submit" name="sort_by_theaters_DESC">Sort DESC</button></th>
@@ -328,7 +272,8 @@ if (isset($_POST['sort_by_company_name_ASC'])) {
         <?php if ($result) {?>
         <?php foreach ($result as $row) { ?>
           <tr>
-            <td><?php echo escape($row["comName"]); ?><input type="checkbox"/></td>
+            <td><input type="checkbox" name="selectedCom" value="<?php echo $row["comName"]; ?>"/></td>
+            <td><?php echo escape($row["comName"]); ?></td>
             <td><?php echo escape($row["numCityCover"]); ?></td>
             <td><?php echo escape($row["numTheater"]); ?></td>
             <td><?php echo escape($row["numEmployee"]); ?></td>
@@ -338,7 +283,9 @@ if (isset($_POST['sort_by_company_name_ASC'])) {
 </tbody>
 </table>
 </form>
+
 <hr>
+
 
 <br>
 &nbsp;&nbsp;<button type="button" onclick="history.back();" name="back_btn" style="height:40px; width:40px">Back</button>

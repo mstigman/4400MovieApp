@@ -8,9 +8,7 @@
 
       session_start();
       $user = $_SESSION['username'];
-      echo $user;
       $sql = "CALL customer_view_history('$user')";
-
 
       $statement = $connection->prepare($sql);
       $statement->execute();
@@ -19,6 +17,7 @@
       $statement = $connection->prepare($sql);
       $statement->execute();
       $result = $statement->fetchAll();
+
     } catch(PDOException $error) {
       echo $sql . "<br>" . $error->getMessage();
     }
@@ -42,17 +41,17 @@
   </tr>
 </thead>
   <tbody>
-    <?php if ($result) { ?>
-    <?php foreach ($result as $row) { ?>
-      <tr>
-        <td><?php echo escape($row["movName"]); ?>
-        <td><?php echo escape($row["thName"]); ?></td>
-        <td><?php echo escape($row["comName"]); ?></td>
-        <td><?php echo escape($row["creditCardNum"]); ?></td>
-        <td><?php echo escape($row["movPlayDate"]); ?></td>
-      </tr>
+    <?php if ($result) {?>
+            <?php foreach ($result as $row) { ?>
+            <tr>
+                <td><?php echo escape($row["movName"]); ?></td>
+                <td><?php echo escape($row["thName"]); ?></td>
+                <td><?php echo escape($row["comName"]); ?></td>
+                <td><?php echo escape($row["creditCardNum"]); ?></td>
+                <td><?php echo escape($row["movPlayDate"]); ?></td>
+            </tr>
+            <?php } ?>
     <?php } ?>
-  <?php } ?>
   </tbody>
 </table>
 <hr>

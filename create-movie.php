@@ -8,8 +8,9 @@
         $connection = new PDO($dsn, $username, $password, $options);
         $movie = array(
           "movName"      => $_POST['movName'],
-          "movReleaseDate"      => $_POST['movReleaseDate'],
           "duration"         => $_POST['duration'],
+          "movReleaseDate"      => $_POST['movReleaseDate'],
+          
         );
 
         $movieData = implode("','", $movie);

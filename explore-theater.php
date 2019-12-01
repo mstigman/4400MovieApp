@@ -6,6 +6,7 @@
 
 <?php //read and result
 $result = 0;
+session_start();
 if (isset($_POST['Filter'])) {
   try {
 
@@ -31,6 +32,34 @@ if (isset($_POST['Filter'])) {
     $statement->execute();
 
     $result = $statement->fetchAll();
+  } catch(PDOException $error) {
+    echo $sql . "<br>" . $error->getMessage();
+  }
+} 
+
+if (isset($_POST['log_visit'])) {
+    try {
+        $connection = new PDO($dsn, $username, $password, $options);
+        $theater = $_POST['selectedTh'];
+        $sql = "select comName from theater where thName = '$theater'";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $coy = $statement->fetchAll();
+       
+        $param = array(
+        "thName"  =>  $_POST['selectedTh'],
+        "comName"  =>  $coy[0][0],
+        "visitDate"  =>  $_POST['visit_date'],
+        "username"  =>  $_SESSION['username'],
+        );
+
+        $args = implode("','", $param);
+        $sql = "CALL user_visit_th('$args')";
+
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        echo $_POST['visit_date'] . ' visit' . " at " . $_POST['selectedTh'] . " logged successfully.";
+
   } catch(PDOException $error) {
     echo $sql . "<br>" . $error->getMessage();
   }
@@ -93,6 +122,7 @@ if (isset($_POST['Filter'])) {
 <h1>Explore Theater</h1>
 <form action="" method="post" id="filter_form">
 Theater Name: <select name="theater_name" form="filter_form">
+    <option value="ALL">ALL</option>
   <?php foreach($theaters as $theaters): ?>
      <option value="<?= $theaters['thName']; ?>"><?= $theaters['thName']; ?></option>
   <?php endforeach; ?>
@@ -101,6 +131,7 @@ Theater Name: <select name="theater_name" form="filter_form">
 <br><br>
 
 Company Name: <select name="company_name" form="filter_form">
+<option value="ALL">ALL</option>
     <?php foreach($companies as $company): ?>
         <option value="<?= $company['comName']; ?>"><?= $company['comName']; ?></option>
     <?php endforeach; ?>
@@ -114,6 +145,7 @@ Company Name: <select name="company_name" form="filter_form">
 <br><br>
   State:
   <select name="state">
+    <option value="ALL">ALL</option>
     <option value="AL">Alabama (AL)</option>
     <option value="AK">Alaska (AK)</option>
     <option value="AZ">Arizona (AZ)</option>
@@ -171,7 +203,7 @@ Company Name: <select name="company_name" form="filter_form">
 </form>
 
 <hr>
-<form action="" method="" id="log_visit">
+<form action="" method="post" id="log_visit">
 <table class="table">
     <thead>
         <tr>
@@ -184,10 +216,10 @@ Company Name: <select name="company_name" form="filter_form">
     <?php if ($result) { ?>
     <?php foreach ($result as $row) { ?>
       <tr>
+        
+        <td><input type="checkbox" name="selectedTh" value="<?php echo $row["thName"]; ?>"/></td>
         <td><?php echo escape($row["thName"]); ?>
-        <td><?php echo escape($row["thStreet"]); ?></td>
-        <td><?php echo escape($row["thState"]); ?></td>
-        <td><?php echo escape($row["thZipCode"]); ?></td>
+        <td><?php echo $row["thStreet"] . ', ' . $row["thCity"] . ', ' . $row["thState"] . ' '.$row["thZipcode"] ; ?></td>
         <td><?php echo escape($row["comName"]); ?></td>
       </tr>
     <?php } ?>
@@ -200,7 +232,7 @@ Visit Date: <input type="text" name="visit_date" maxlength="11" size="11">&nbsp;
 
 <br><br>
 
-<input type="submit" value="Log Visit" name="log" style="height:80px; width:80px">
+<input type="submit" value="Log Visit" name="log_visit" style="height:80px; width:80px">
 </form>
 
 <hr>

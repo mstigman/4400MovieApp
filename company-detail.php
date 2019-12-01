@@ -1,45 +1,36 @@
-<?
-$comName = 0;
-$employeeNames = 0;
-$theaterDetail = 0;
-
-if (isset($_POST['submit'])) {
-  try {
+<?php
     require "./config.php";
     require "./common.php";
+?>
 
+<?php //read and result
     session_start();
-    $comName = $_SESSION['comName'];
-    // get employee details
-    $connection = new PDO($dsn, $username, $password, $options);
-    $sql = "CALL admin_view_comDetail_emp('$comName')";
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-    $employeeDetail = $statement->fetchAll();
+    try {
+        $comName = $_SESSION['comName'];
+        // get employee details
+        $connection = new PDO($dsn, $username, $password, $options);
+        $sql = "CALL admin_view_comDetail_emp('$comName')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
 
-    function array_zip($a1, $a2) {
-        for($i = 0; $i < min(length($a1), length($a2)); $i++) {
-          $out[$i] = $a1[$i] . $a2[$i];
-        }
-        return $out;
+        $sql = "SELECT * FROM AdComDetailEmp";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $employeeDetail = $statement->fetchAll();
+
+        // get theater details
+        $connection = new PDO($dsn, $username, $password, $options);
+        $sql = "CALL admin_view_comDetail_th('$comName')";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $sql = "SELECT * FROM AdComDetailTh";
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $theaterDetail = $statement->fetchAll();
+
+    } catch(PDOException $error) {
+        echo $sql . "<br>" . $error->getMessage();
     }
-
-    if ($employeeDetail) {
-        $listEmployees = array_zip($employeeDetail['EmpFirstname'], $employeeDetail['EmpLastname']);
-        $employeeNames = implode(",", $listEmployees);
-    }
-
-    // get theater details
-    $connection = new PDO($dsn, $username, $password, $options);
-    $sql = "CALL admin_view_comDetail_th('$comName')";
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-    $theaterDetail = $statement->fetchAll();
-
-  } catch(PDOException $error) {
-    echo $sql . "<br>" . $error->getMessage();
-  }
-}
 ?>
 
 <!DOCTYPE html>
@@ -47,19 +38,20 @@ if (isset($_POST['submit'])) {
 <body>
 
 <h1>Company Detail</h1>
-
 <h3>Name</h3>
-<?php
-  if($comName) {
-    echo $comName;
-  }
-?>
+<?php echo $comName ?>
 <h3>Employees</h3>
 <?php
-  if($employeeNames) {
-    echo $employeeNames;
-  }
+    $temp = array();
+    foreach($employeeDetail as $employee)
+    {   
+        $mystring = $employee['EmpFirstname'] .' '. $employee['EmpLastname'];
+        array_push($temp, $mystring);
+    }
+    $new = implode(", ", $temp);
+    echo $new;
 ?>
+
 <br><br>
 
 <h3>Theaters</h3>
@@ -82,7 +74,7 @@ if (isset($_POST['submit'])) {
             <td><?php echo escape($row["thManagerUsername"]); ?></td>
             <td><?php echo escape($row["thCity"]); ?></td>
             <td><?php echo escape($row["thState"]); ?></td>
-            <td><?php echo escape($row["capacity"]); ?></td>
+            <td><?php echo escape($row["thCapacity"]); ?></td>
         </tr>
         <?php } ?>
     <?php } ?>
